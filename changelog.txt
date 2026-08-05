@@ -1,0 +1,24 @@
+---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 2026-08-05
+  Features:
+    - Added Active Global Networks scanner (`Open Networks`) displaying all active network flags used across the factory for 1-click selection.
+    - Added 32-bit Bitmask Encoder embedded directly inside Network Masks section with real-time decimal conversion and dynamic bit button synchronization.
+    - Added dual independent input controls for Stacks and Count with automatic stack size calculations and bold active Count label indicator.
+    - Added full ghost entity support (entity-ghost): inspect and configure combinators placed via blueprints or ghost cursor, with seamless state preservation when built by robots or players.
+    - Added Default Output Stacks per-user runtime setting (`cybersyn2-combinator-setting-stacks`).
+    - Added automatic pre-configuration of default station priority and default network flag (A1) upon entity placement (by hand, bots, or blueprints).
+    - Added compact SI short number overlays on signal icons (`1.2k`, `50k`, `1.2M`) including station priority and network mask signal pickers.
+    - Added auto-scrolling to group editors and newly added section groups.
+  Bugfixes:
+    - Fixed instant input field focus on first slot selection click when switching between fluids and items.
+    - Fixed network mask and stacks inputs to correctly allow negative sign (-) entry during intermediate input.
+    - Fixed output statistics to strictly count items and fluids while completely ignoring virtual signals.
+    - Fixed copy-paste settings between combinators and ghosts.
+  Changes:
+    - Refactored UI architecture using Relm/0-things framework with clean `C2CC` component names and Sumneko type annotations.
+    - Cleaned up obsolete legacy methods, unused prototypes, and redundant code.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2025-10-07
+  - Released.

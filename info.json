@@ -1,0 +1,10 @@
+{
+  "name": "cybersyn2-combinator",
+  "version": "2.1.0",
+  "factorio_version": "2.1",
+  "title": "Cybersyn 2 Constant Combinator",
+  "author": "moral1ty",
+  "homepage": "https://github.com/VladislavPrimakov/mods_factorio",
+  "description": "A specialized combinator for the Project Cybersyn 2 mod",
+  "dependencies": ["cybersyn2", "0-things"]
+}
