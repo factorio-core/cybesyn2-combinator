@@ -1,17 +1,20 @@
 local relm = require "__0-things__.lib.core.relm.relm"
 local ultros = require "__0-things__.lib.core.relm.ultros"
 local utils = require "scripts.gui.utils"
+local GuiState = require "scripts.models.gui_state"
+local constants = require "scripts.constants"
 
 local Pr = relm.Primitive
 local VF = ultros.VFlow
+local HF = ultros.HFlow
 
 ---@class C2CC.SectionGroupData
----@field public section_index integer Group section index in control behavior.
----@field public group_name string Formatted display group name.
----@field public raw_group_name string Raw unformatted group name string.
----@field public is_active boolean Whether section is enabled/active.
----@field public max_slot_found integer Highest non-empty slot index.
----@field public slots table<integer, { signal: SignalID, count: integer }> Slot filters data map.
+---@field public GroupIndex integer Group index in control behavior.
+---@field public GroupName string Formatted display group name.
+---@field public RawGroupName string Raw unformatted group name string.
+---@field public IsActive boolean Whether section is enabled/active.
+---@field public MaxSlotFound integer Highest non-empty slot index.
+---@field public Slots table<integer, { Signal: SignalID, Count: integer }> Slot filters data map.
 
 ---@class C2CC.SectionGroupProps : Relm.Props
 ---@field public grp C2CC.SectionGroupData Section group data object.
@@ -19,16 +22,14 @@ local VF = ultros.VFlow
 ---@field public selected_section? integer Currently selected group section index.
 ---@field public selected_slot? integer Currently selected slot index in group.
 ---@field public combinator? C2CC Combinator wrapper instance.
----@field public edit_items_text? string Current items count input text.
----@field public edit_stacks_text? string Current stacks input text.
 ---@field public sign? integer 1 or -1 sign multiplier.
 ---@field public player_index? integer Player index.
 ---@field public on_select_slot? fun(sec_idx: integer, slot_idx: integer) Callback when a slot is clicked to select.
----@field public set_groups? fun(groups: C2CC.SectionGroupData[]) Setter for reactive groups state.
+---@field public update? fun() Update callback to trigger UI re-render.
 ---@field public on_reset_selection? fun() Reset selection callback.
 
 relm.define_element({
-  name = "C2CC.SectionGroup",
+  name = constants.GUI.SECTION_GROUP_ELEMENT_NAME,
   render = function(props)
     ---@cast props C2CC.SectionGroupProps
     -- Encapsulated local editing state for each group section
@@ -39,23 +40,29 @@ relm.define_element({
     local selected_section = props.selected_section
     local selected_slot = props.selected_slot
     local combinator = props.combinator
-    local edit_items_text = props.edit_items_text or ""
-    local edit_stacks_text = props.edit_stacks_text or ""
     local sign = props.sign or 1
     local player_index = props.player_index
 
     local on_select_slot = props.on_select_slot
-    local set_groups = props.set_groups
+    local update = props.update
     local on_reset_selection = props.on_reset_selection
 
-    local function handle_confirm(new_name)
+    local function handle_confirm(new_name, slots)
       local final_name = new_name or rename_text
       if combinator then
-        combinator:rename_group(grp.section_index, final_name)
+        local target_slots = slots
+        if not target_slots and final_name ~= "" then
+          local global_groups = utils.get_all_global_groups()
+          target_slots = global_groups[final_name]
+        end
+        combinator:RenameGroup(grp.GroupIndex, final_name)
+        if target_slots then
+          combinator:SetGroupSlotsBulk(grp.GroupIndex, target_slots)
+        end
       end
       set_is_editing(false)
       set_rename_text("")
-      if set_groups and combinator then set_groups(combinator:get_groups()) end
+      if update then update() end
     end
 
     local function handle_cancel()
@@ -63,44 +70,62 @@ relm.define_element({
       set_rename_text("")
     end
 
+    local gs = GuiState.Get(player_index)
+
+    -- Preset names for dropdown (only scanned when group editing frame is open)
+    local names = {}
+    local dropdown_items = {}
+    if is_editing then
+      local group_map = utils.get_all_global_groups()
+      for name in pairs(group_map) do
+        table.insert(names, name)
+      end
+      table.sort(names)
+
+      dropdown_items = { "Select a preset..." }
+      for _, name in ipairs(names) do
+        table.insert(dropdown_items, name)
+      end
+    end
+
     local slot_buttons = {}
-    local max_filled = grp.max_slot_found or 0
+    local max_filled = grp.MaxSlotFound or 0
     local num_rows = math.ceil((max_filled + 1) / 10)
     if num_rows < 1 then num_rows = 1 end
     local total_display_slots = num_rows * 10
 
     for slot_idx = 1, total_display_slots do
-      local sdata = grp.slots[slot_idx]
-      local is_selected = (selected_section == grp.section_index and selected_slot == slot_idx)
+      local sdata = grp.Slots[slot_idx]
+      local is_selected = (selected_section == grp.GroupIndex and selected_slot == slot_idx)
 
-      if sdata and sdata.signal then
+      if sdata and sdata.Signal then
         slot_buttons[#slot_buttons + 1] = Pr({
           type = "choose-elem-button",
           elem_type = "signal",
-          elem_value = sdata.signal,
+          elem_value = sdata.Signal,
           style = is_selected and "relm_selected_slot_button_default" or "relm_slot_button_default",
           locked = true,
-          enabled = grp.is_active,
-          listen = grp.is_active,
+          enabled = grp.IsActive,
+          listen = grp.IsActive,
           message_handler = ultros.handle_gui_events(
             defines.events.on_gui_click,
             function(_, gui_event)
-              if not grp.is_active then return end
+              if not grp.IsActive then return end
               if gui_event.button == defines.mouse_button_type.right then
                 if combinator then
-                  combinator:remove_group_slot(grp.section_index, slot_idx)
-                  if set_groups then set_groups(combinator:get_groups()) end
+                  combinator:RemoveGroupSlot(grp.GroupIndex, slot_idx)
+                  if update then update() end
                 end
               else
-                if on_select_slot then on_select_slot(grp.section_index, slot_idx) end
+                if on_select_slot then on_select_slot(grp.GroupIndex, slot_idx) end
               end
             end
           )
         }, {
-          sdata.count ~= 0 and Pr({
+          sdata.Count ~= 0 and Pr({
             type = "label",
             style = "relm_label_signal_count",
-            caption = utils.format_short_number(sdata.count),
+            caption = utils.format_short_number(sdata.Count),
             ignored_by_interaction = true
           }) or nil
         })
@@ -108,13 +133,13 @@ relm.define_element({
         slot_buttons[#slot_buttons + 1] = ultros.ChooseElemButton({
           value = nil,
           style = "relm_slot_button_default",
-          locked = not grp.is_active,
-          enabled = grp.is_active,
+          locked = not grp.IsActive,
+          enabled = grp.IsActive,
           on_change = function(_, new_sig, elem)
-            if not grp.is_active then return end
+            if not grp.IsActive then return end
             if new_sig and new_sig.name then
-              for i, slot in pairs(grp.slots) do
-                if i ~= slot_idx and slot and slot.signal and slot.signal.name == new_sig.name then
+              for i, slot in pairs(grp.Slots) do
+                if i ~= slot_idx and slot and slot.Signal and slot.Signal.name == new_sig.name then
                   if elem and elem.valid then
                     elem.elem_value = nil
                   end
@@ -122,28 +147,25 @@ relm.define_element({
                 end
               end
 
-              local is_stackable = utils.is_stackable_signal(new_sig)
-              local default_stks = utils.get_default_stacks(player_index)
-              local eff_stacks = (edit_stacks_text and edit_stacks_text ~= "") and edit_stacks_text or default_stks
-              local count = utils.compute_final_count(edit_items_text, eff_stacks, new_sig, sign, is_stackable, default_stks)
+              local count = gs:CalculateInitialSignalCount(new_sig, sign)
 
               if combinator then
-                combinator:set_group_slot(grp.section_index, slot_idx, new_sig, count)
+                combinator:SetGroupSlot(grp.GroupIndex, slot_idx, new_sig, count)
               end
-              if on_select_slot then on_select_slot(grp.section_index, slot_idx) end
-              if set_groups and combinator then set_groups(combinator:get_groups()) end
+              if on_select_slot then on_select_slot(grp.GroupIndex, slot_idx) end
+              if update then update() end
             else
               if combinator then
-                combinator:remove_group_slot(grp.section_index, slot_idx)
+                combinator:RemoveGroupSlot(grp.GroupIndex, slot_idx)
               end
-              if set_groups and combinator then set_groups(combinator:get_groups()) end
+              if update then update() end
             end
           end
         })
       end
     end
 
-    local display_caption = grp.group_name
+    local display_caption = grp.GroupName
     local max_caption_len = 30
     if #display_caption > max_caption_len then
       display_caption = string.sub(display_caption, 1, max_caption_len - 3) .. "..."
@@ -160,18 +182,14 @@ relm.define_element({
         ultros.Checkbox({
           style = "subheader_caption_checkbox",
           caption = display_caption,
-          tooltip = #grp.group_name > max_caption_len and grp.group_name or "",
-          value = grp.is_active,
+          tooltip = #grp.GroupName > max_caption_len and grp.GroupName or "",
+          value = grp.IsActive,
           on_change = function()
-            local cb = combinator and combinator:get_control_behavior()
-            if cb then
-              local section = cb.get_section(grp.section_index)
-              if section and section.valid then
-                section.active = not (section.active ~= false)
-              end
+            if combinator then
+              combinator:SetGroupActive(grp.GroupIndex, not grp.IsActive)
             end
             if on_reset_selection then on_reset_selection() end
-            if set_groups and combinator then set_groups(combinator:get_groups()) end
+            if update then update() end
           end
         }),
         ultros.SpriteButton({
@@ -181,7 +199,10 @@ relm.define_element({
           on_click = function()
             local next_state = not is_editing
             set_is_editing(next_state)
-            set_rename_text(next_state and grp.raw_group_name or "")
+            set_rename_text(next_state and grp.RawGroupName or "")
+            if next_state then
+              gs:SetTargetFocusField(constants.GUI.FIELD_RENAME_GROUP_INPUT)
+            end
           end
         }),
         Pr({
@@ -194,23 +215,96 @@ relm.define_element({
           tooltip = "Delete section",
           on_click = function()
             if combinator then
-              combinator:remove_group(grp.section_index)
+              combinator:RemoveGroup(grp.GroupIndex)
               if on_reset_selection then on_reset_selection() end
-              if set_groups and combinator then set_groups(combinator:get_groups()) end
+              if update then update() end
             end
           end
         })
       }),
 
-      is_editing and relm.element("C2CC.GroupEditor", {
-        section_index = grp.section_index,
-        raw_group_name = grp.raw_group_name,
-        rename_text_val = rename_text,
-        player_index = player_index,
-        on_change_text = set_rename_text,
-        on_confirm = function() handle_confirm(nil) end,
-        on_cancel = handle_cancel,
-        on_select_preset = function(name) handle_confirm(name) end
+      is_editing and Pr({
+        type = "frame",
+        style = "inside_shallow_frame_with_padding",
+        direction = "vertical",
+        top_margin = 4,
+        bottom_margin = 6,
+        ref = function(elt)
+          if elt and elt.valid then
+            local parent = elt.parent
+            while parent and parent.valid do
+              if parent.type == "scroll-pane" then
+                parent.scroll_to_element(elt)
+                break
+              end
+              parent = parent.parent
+            end
+          end
+        end
+      }, {
+        VF({
+          ultros.BoldLabel("Rename Group:"),
+          HF({ vertical_align = "center", top_margin = 4 }, {
+            ultros.Input({
+              name = constants.GUI.FIELD_RENAME_GROUP_INPUT,
+              ref = function(elt)
+                if elt and elt.valid and gs.GuiMain.TargetFocusField == constants.GUI.FIELD_RENAME_GROUP_INPUT then
+                  elt.focus()
+                  gs:SetTargetFocusField(nil)
+                end
+              end,
+              text = rename_text ~= "" and rename_text or grp.RawGroupName,
+              width = 150,
+              on_change = function(_, _, element)
+                set_rename_text(element.text)
+              end,
+              on_confirm = function()
+                handle_confirm(nil)
+              end
+            }),
+            ultros.Button({
+              caption = "Save",
+              style = "confirm_button",
+              height = 28,
+              on_click = function()
+                handle_confirm(nil)
+              end
+            }),
+            ultros.Button({
+              caption = "Cancel",
+              style = "red_button",
+              height = 28,
+              on_click = handle_cancel
+            })
+          }),
+
+          #names > 0 and VF({
+            top_margin = 6
+          }, {
+            ultros.BoldLabel("Existing Groups in World:"),
+            Pr({
+              type = "drop-down",
+              items = dropdown_items,
+              selected_index = 1,
+              listen = true,
+              message_handler = ultros.handle_gui_events(
+                defines.events.on_gui_selection_state_changed,
+                function(me, gui_event)
+                  local my_elt = gui_event.element
+                  if my_elt and my_elt.valid then
+                    local sel_idx = my_elt.selected_index
+                    if sel_idx > 1 then
+                      local selected_name = dropdown_items[sel_idx]
+                      set_rename_text(selected_name)
+                      gs:SetTargetFocusField(constants.GUI.FIELD_RENAME_GROUP_INPUT)
+                      if update then update() end
+                    end
+                  end
+                end
+              )
+            })
+          }) or nil
+        })
       }) or nil,
 
       Pr({ type = "table", column_count = 10, style = "slot_table", top_margin = 4 }, slot_buttons)

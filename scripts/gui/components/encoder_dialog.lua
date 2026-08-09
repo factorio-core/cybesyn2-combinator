@@ -1,10 +1,14 @@
 local relm = require "__0-things__.lib.core.relm.relm"
 local ultros = require "__0-things__.lib.core.relm.ultros"
 local utils = require "scripts.gui.utils"
+local constants = require "scripts.constants"
 
 local Pr = relm.Primitive
 local VF = ultros.VFlow
 local HF = ultros.HFlow
+
+local CAPTION_ENCODER_ALL = { "cybersyn2-constant-combinator-encoder.all" }
+local CAPTION_ENCODER_NONE = { "cybersyn2-constant-combinator-encoder.none" }
 
 ---@class C2CC.EncoderDialogProps : Relm.Props
 ---@field public mask? integer Current bitmask value.
@@ -12,12 +16,11 @@ local HF = ultros.HFlow
 ---@field public on_apply? fun(mask: integer) Callback when bitmask is applied.
 
 relm.define_element({
-  name = "C2CC.EncoderDialog",
+  name = constants.GUI.ENCODER_DIALOG_ELEMENT_NAME,
   render = function(props)
     ---@cast props C2CC.EncoderDialogProps
     local mask = utils.to_int32(props.mask or 0)
     local on_change_mask = props.on_change_mask
-    local on_apply = props.on_apply
 
     local bit_buttons = {}
     for bit = 0, 31 do
@@ -48,22 +51,15 @@ relm.define_element({
         Pr({ type = "table", column_count = 8, style = "slot_table" }, bit_buttons),
         HF({ vertical_align = "center", top_margin = 4 }, {
           ultros.Button({
-            caption = { "cybersyn2-constant-combinator-encoder.all" },
+            caption = CAPTION_ENCODER_ALL,
             on_click = function()
               if on_change_mask then on_change_mask(0xFFFFFFFF) end
             end
           }),
           ultros.Button({
-            caption = { "cybersyn2-constant-combinator-encoder.none" },
+            caption = CAPTION_ENCODER_NONE,
             on_click = function()
               if on_change_mask then on_change_mask(0) end
-            end
-          }),
-          ultros.Button({
-            caption = "Apply",
-            style = "confirm_button",
-            on_click = function()
-              if on_apply then on_apply(mask) end
             end
           })
         })

@@ -1,4 +1,36 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.1
+Date: 2026-08-09
+  Features:
+    - Added In-GUI Settings tab: configure player preferences (negative signals, station priority, default network signal & flag, stacks, count, input mode) live inside the combinator window.
+    - Added Default Network Signal picker allowing customization of the default network signal (e.g. signal-A, signal-B).
+    - Added Admin-only batch update options for world combinators: "Apply priority to all combinators" and "Apply network to all combinators".
+    - Added Save and Cancel buttons in the Settings tab with draft state management and yellow status feedback.
+    - Added smart signal addition defaults: defaults to 1 item/fluid in Counts mode or 1 full stack in Stacks mode when player default settings are unset (0).
+    - Added automatic input field focus on window open and tab switching to the Combinator view.
+    - Re-ordered Factorio logistic sections on control_behavior: Section 1 is Priority, Section 2 is Network Mask, and Sections 3+ are custom groups.
+    - Added automatic migration script (`migrations/2.1.1.lua` / `migrations/2.2.1.lua`) to reorganize sections on existing combinators from older save files.
+    - Added default Section 3 (first custom section group) upon combinator placement.
+    - Added direct support for player settings defaults when placing new combinators.
+  Changes:
+    - Refactored C2CC model class (`scripts/models/combinator.lua`) to operate directly on Factorio control_behavior sections.
+    - Removed `0-things` `Thing` entity registration and custom events (`prototypes/thing.lua`); using native Factorio entity lifecycle events.
+    - Merged `GroupEditor` element directly into `SectionGroup` component for cleaner component architecture.
+    - Moved all state initializations, focus calculations, and output statistics computations into `GuiState` model.
+    - Removed legacy vanilla prototype mod settings (`settings.lua`) in favor of per-player in-game storage (`storage.player_settings`).
+    - Refactored player settings data architecture using `C2CC.PlayerSettings` model class (`scripts/models/player_settings.lua`).
+    - Optimized world batch updates to only run when priority or network values actually changed and match previous settings.
+  Bugfixes:
+    - Fixed copy-pasting settings from vanilla constant combinators into Cybersyn 2 Constant Combinators by automatically shifting pasted sections into Section 3+ and preserving Station Priority and Network Mask.
+    - Fixed dropdown selection handler in group editor by attaching `on_gui_selection_state_changed` message handler.
+    - Fixed output statistics recalculation when toggling section group active checkbox.
+    - Fixed GUI lifecycle cleanup when mining or destroying combinators.
+    - Fixed dropdown preset selection populating rename text input and setting focus.
+    - Fixed localized button caption resetting during group edit by using static caption reference.
+    - Fixed numerical comparisons in world batch update utilities.
+    - Fixed checkbox state rendering and event handling in Relm framework to eliminate progressbar errors and state reset issues.
+    - Fixed runtime `require` errors during save events and new player creation (`on_player_created`).
+---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 2026-08-05
   Features:
