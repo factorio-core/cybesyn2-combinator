@@ -7,8 +7,7 @@ local Pr = relm.Primitive
 local VF = ultros.VFlow
 local HF = ultros.HFlow
 
-local CAPTION_ENCODER_ALL = { "cybersyn2-constant-combinator-encoder.all" }
-local CAPTION_ENCODER_NONE = { "cybersyn2-constant-combinator-encoder.none" }
+local C = constants.CAPTIONS
 
 ---@class C2CC.EncoderDialogProps : Relm.Props
 ---@field public mask? integer Current bitmask value.
@@ -45,19 +44,19 @@ relm.define_element({
     }, {
       VF({
         HF({ vertical_align = "center" }, {
-          ultros.BoldLabel("Decimal: "),
+          ultros.BoldLabel(C.ENCODER_DECIMAL_PREFIX),
           ultros.RtMultilineLabel(tostring(utils.to_int32(mask)))
         }),
         Pr({ type = "table", column_count = 8, style = "slot_table" }, bit_buttons),
         HF({ vertical_align = "center", top_margin = 4 }, {
           ultros.Button({
-            caption = CAPTION_ENCODER_ALL,
+            caption = C.ENCODER_ALL,
             on_click = function()
               if on_change_mask then on_change_mask(0xFFFFFFFF) end
             end
           }),
           ultros.Button({
-            caption = CAPTION_ENCODER_NONE,
+            caption = C.ENCODER_NONE,
             on_click = function()
               if on_change_mask then on_change_mask(0) end
             end

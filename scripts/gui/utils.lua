@@ -250,5 +250,4 @@ function utils.scroll_pane_to_bottom(player_index, pane_name)
     pane.scroll_to_bottom()
   end
 end
-
 return utils

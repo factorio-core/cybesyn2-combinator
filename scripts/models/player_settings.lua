@@ -8,6 +8,7 @@ local constants = require "scripts.constants"
 ---@field Stacks integer Default output stacks count value.
 ---@field Count integer Default output items count value.
 ---@field DefaultInputMode string Default focused input mode ("count" or "stacks").
+---@field AutoQueryPriorities boolean Automatically query Cybersyn 2 signal priorities on open.
 
 ---@class C2CC.PlayerSettings : C2CC.PlayerSettingsData
 local PlayerSettings = {}
@@ -31,6 +32,7 @@ function PlayerSettings.Get(playerIndex)
   if st.Stacks == nil then st.Stacks = constants.SETTINGS.DEFAULT_STACKS end
   if st.Count == nil then st.Count = constants.SETTINGS.DEFAULT_COUNT end
   if st.DefaultInputMode == nil then st.DefaultInputMode = constants.SETTINGS.DEFAULT_INPUT_MODE end
+  if st.AutoQueryPriorities == nil then st.AutoQueryPriorities = true end
 
   setmetatable(st, PlayerSettings)
   return st
@@ -40,10 +42,7 @@ end
 ---@return C2CC.PlayerSettings
 function PlayerSettings.Copy(playerIndex)
   local src = PlayerSettings.Get(playerIndex)
-  local draft = {}
-  for k, v in pairs(src) do
-    draft[k] = v
-  end
+  local draft = util.table.deepcopy(src)
   setmetatable(draft, PlayerSettings)
   return draft
 end
@@ -58,6 +57,7 @@ function PlayerSettings:Update(data)
   if data.Stacks ~= nil then self.Stacks = tonumber(data.Stacks) or 0 end
   if data.Count ~= nil then self.Count = tonumber(data.Count) or 0 end
   if data.DefaultInputMode ~= nil then self.DefaultInputMode = tostring(data.DefaultInputMode) end
+  if data.AutoQueryPriorities ~= nil then self.AutoQueryPriorities = data.AutoQueryPriorities ~= false end
 end
 
 ---@param playerIndex integer

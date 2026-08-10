@@ -1,6 +1,8 @@
 local event = require "__0-things__.lib.core.event"
 local relm = require "__0-things__.lib.core.relm.relm"
 local constants = require "scripts.constants"
+local C2CC = require "scripts.models.combinator"
+local priorities = require "scripts.gui.priorities"
 
 -- Import UI component definitions to register elements with Relm
 require "scripts.gui.components.main"
@@ -8,6 +10,7 @@ require "scripts.gui.components.section_group"
 require "scripts.gui.components.encoder_dialog"
 require "scripts.gui.components.networks_dialog"
 require "scripts.gui.components.settings_tab"
+require "scripts.gui.components.priorities_summary"
 
 ---@class C2CC.Gui
 local gui = {}
@@ -66,6 +69,12 @@ function gui:open(player_index, entity)
     old_elt.destroy()
   end
 
+  -- Ensure 0-things framework storage structures are initialized
+  storage._counters = storage._counters or {}
+  storage._sched = storage._sched or { tasks = {}, at = {} }
+  storage._sched.tasks = storage._sched.tasks or {}
+  storage._sched.at = storage._sched.at or {}
+
   -- Instantiate the Relm UI root element
   local root_id, elt = relm.root_create(
     player.gui.screen,
@@ -83,13 +92,18 @@ function gui:open(player_index, entity)
     }
   end
 
+  -- Resolve target station ID and inventory IDs ONCE on open
+  local target_stop_unit, target_inv_ids = priorities.find_station_for_combinator(entity)
+
   -- Cache the currently opened entity info to validate lifecycle events
   storage.opened_info = storage.opened_info or {}
   storage.opened_info[player_index] = {
     entity = entity,
     root_id = root_id,
+    target_stop_unit = target_stop_unit,
+    target_inv_ids = target_inv_ids,
     position = { x = entity.position.x, y = entity.position.y },
-    surface_index = entity.surface.index
+    surface_index = entity.surface.index,
   }
 
   player.opened = elt

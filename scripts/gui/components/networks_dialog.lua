@@ -9,24 +9,31 @@ local VF = ultros.VFlow
 ---@class C2CC.NetworksDialogProps : Relm.Props
 ---@field public on_select_network? fun(signal: SignalID, count: integer) Callback when a active global network signal is selected.
 
+local C = constants.CAPTIONS
+
 relm.define_element({
   name = constants.GUI.NETWORKS_DIALOG_ELEMENT_NAME,
   render = function(props)
     ---@cast props C2CC.NetworksDialogProps
     local on_select_network = props.on_select_network
 
+    local networks_data = utils.get_all_global_active_networks()
+
     local net_buttons = {}
-    for key, data_net in pairs(utils.get_all_global_active_networks()) do
+    for key, data_net in pairs(networks_data) do
       net_buttons[#net_buttons + 1] = Pr({
         type = "choose-elem-button",
         elem_type = "signal",
         elem_value = data_net.Signal,
         style = "relm_slot_button_default",
-        locked = true,
         listen = true,
         message_handler = ultros.handle_gui_events(
-          defines.events.on_gui_click,
-          function()
+          defines.events.on_gui_elem_changed,
+          function(_, gui_event)
+            local elem = gui_event.element
+            if elem and elem.valid then
+              elem.elem_value = data_net.Signal
+            end
             if on_select_network then on_select_network(data_net.Signal, data_net.Count) end
           end
         )
@@ -47,7 +54,7 @@ relm.define_element({
       top_margin = 6
     }, {
       VF({
-        ultros.BoldLabel("Active Global Networks:"),
+        ultros.BoldLabel(C.ACTIVE_GLOBAL_NETWORKS),
         #net_buttons > 0 and Pr({
           type = "scroll-pane",
           style = "scroll_pane",
@@ -61,10 +68,10 @@ relm.define_element({
             horizontal_align = "center",
             horizontally_stretchable = true
           }, {
-            Pr({ type = "table", column_count = 9, style = "slot_table" }, net_buttons)
+            Pr({ type = "table", column_count = 9 }, net_buttons)
           })
         })
-        or ultros.RtMultilineLabel("(No active networks in world)")
+        or ultros.RtMultilineLabel(C.NO_ACTIVE_NETWORKS)
       })
     })
   end

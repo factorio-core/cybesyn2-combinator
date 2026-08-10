@@ -13,6 +13,14 @@ gui:init()
 
 ---Ensures all required storage structures (including 0-things and Relm internal storage) are initialized.
 local function init_storage()
+  -- Internal storage container for 0-things counter system.
+  storage._counters = storage._counters or {}
+
+  -- Internal storage container for 0-things scheduler system.
+  storage._sched = storage._sched or { tasks = {}, at = {} }
+  storage._sched.tasks = storage._sched.tasks or {}
+  storage._sched.at = storage._sched.at or {}
+
   -- Internal storage container for the Relm UI framework (roots, counter, object destruction mapping).
   storage._relm = storage._relm or { roots = {}, root_counter = 0, reg_num_map = {} }
 

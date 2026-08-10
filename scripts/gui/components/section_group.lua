@@ -28,19 +28,40 @@ local HF = ultros.HFlow
 ---@field public update? fun() Update callback to trigger UI re-render.
 ---@field public on_reset_selection? fun() Reset selection callback.
 
+local C = constants.CAPTIONS
+
 relm.define_element({
   name = constants.GUI.SECTION_GROUP_ELEMENT_NAME,
   render = function(props)
-    ---@cast props C2CC.SectionGroupProps
     -- Encapsulated local editing state for each group section
     local is_editing, set_is_editing = relm.use_state(false)
     local rename_text, set_rename_text = relm.use_state("")
+    local preset_items, set_preset_items = relm.use_state({})
+
+    -- Scanned ONCE when group editing frame opens (is_editing transitions to true)
+    relm.use_effect(is_editing, function()
+      if is_editing then
+        local group_map = utils.get_all_global_groups()
+        local names = {}
+        for name in pairs(group_map) do
+          table.insert(names, name)
+        end
+        table.sort(names)
+
+        local items = { "Select a preset..." }
+        for _, name in ipairs(names) do
+          table.insert(items, name)
+        end
+        set_preset_items(items)
+      else
+        set_preset_items({})
+      end
+    end)
 
     local grp = props.grp
     local selected_section = props.selected_section
     local selected_slot = props.selected_slot
     local combinator = props.combinator
-    local sign = props.sign or 1
     local player_index = props.player_index
 
     local on_select_slot = props.on_select_slot
@@ -72,21 +93,7 @@ relm.define_element({
 
     local gs = GuiState.Get(player_index)
 
-    -- Preset names for dropdown (only scanned when group editing frame is open)
-    local names = {}
-    local dropdown_items = {}
-    if is_editing then
-      local group_map = utils.get_all_global_groups()
-      for name in pairs(group_map) do
-        table.insert(names, name)
-      end
-      table.sort(names)
-
-      dropdown_items = { "Select a preset..." }
-      for _, name in ipairs(names) do
-        table.insert(dropdown_items, name)
-      end
-    end
+    local dropdown_items = preset_items
 
     local slot_buttons = {}
     local max_filled = grp.MaxSlotFound or 0
@@ -147,7 +154,7 @@ relm.define_element({
                 end
               end
 
-              local count = gs:CalculateInitialSignalCount(new_sig, sign)
+              local count = gs:CalculateInitialSignalCount(new_sig)
 
               if combinator then
                 combinator:SetGroupSlot(grp.GroupIndex, slot_idx, new_sig, count)
@@ -184,10 +191,8 @@ relm.define_element({
           caption = display_caption,
           tooltip = #grp.GroupName > max_caption_len and grp.GroupName or "",
           value = grp.IsActive,
-          on_change = function()
-            if combinator then
-              combinator:SetGroupActive(grp.GroupIndex, not grp.IsActive)
-            end
+          on_click = function()
+            gs:SetGroupActive(grp.GroupIndex, not grp.IsActive)
             if on_reset_selection then on_reset_selection() end
             if update then update() end
           end
@@ -214,11 +219,9 @@ relm.define_element({
           style = "tool_button_red",
           tooltip = "Delete section",
           on_click = function()
-            if combinator then
-              combinator:RemoveGroup(grp.GroupIndex)
-              if on_reset_selection then on_reset_selection() end
-              if update then update() end
-            end
+            gs:RemoveGroup(grp.GroupIndex)
+            if on_reset_selection then on_reset_selection() end
+            if update then update() end
           end
         })
       }),
@@ -243,7 +246,7 @@ relm.define_element({
         end
       }, {
         VF({
-          ultros.BoldLabel("Rename Group:"),
+          ultros.BoldLabel(C.RENAME_GROUP),
           HF({ vertical_align = "center", top_margin = 4 }, {
             ultros.Input({
               name = constants.GUI.FIELD_RENAME_GROUP_INPUT,
@@ -263,7 +266,7 @@ relm.define_element({
               end
             }),
             ultros.Button({
-              caption = "Save",
+              caption = C.SAVE,
               style = "confirm_button",
               height = 28,
               on_click = function()
@@ -271,7 +274,7 @@ relm.define_element({
               end
             }),
             ultros.Button({
-              caption = "Cancel",
+              caption = C.CANCEL,
               style = "red_button",
               height = 28,
               on_click = handle_cancel
@@ -281,7 +284,7 @@ relm.define_element({
           #names > 0 and VF({
             top_margin = 6
           }, {
-            ultros.BoldLabel("Existing Groups in World:"),
+            ultros.BoldLabel(C.EXISTING_GROUPS),
             Pr({
               type = "drop-down",
               items = dropdown_items,

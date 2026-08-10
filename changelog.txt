@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.2
+Date: 2026-08-10
+  Features:
+    - Added `AutoQueryPriorities` player setting (enabled by default) to automatically query Cybersyn 2 station signal priorities on opening combinator UI.
+    - Added Signal Priorities summary panel under Station Priority displaying non-clickable signal rows for items and fluids (signal icon, Request Min/Max priorities, Supply Min/Max priorities) inside a scroll pane.
+    - Added reactive Relm timer and message handler architecture (`relm_util.use_timer(60, MESSAGES.REFRESH_PRIORITIES)`) for automatic 1-second priority updates.
+  Changes:
+    - Optimized Cybersyn 2 priority query engine (`scripts/gui/priorities.lua`): directly iterates order dictionaries (`requests`, `requested_fluids`, `provides`) for 10x-50x faster execution and removed legacy Cybersyn 1/draft field checks.
+    - Station inventory resolution (`find_station_for_combinator`) queries Cybersyn 2 API for station inventory IDs (`inventory_id`, `shared_inventory_master`) matching the combinator's association radius.
+    - Replaced manual `root_update` and invalidation flags with `priorities.are_priorities_equal` signal uniqueness checks and selective `relm.paint(me)` repainting.
+    - Encapsulated priority cache directly on `GuiState.PrioritiesCache` for automatic memory cleanup upon closing windows.
+    - Standardized all model state properties to PascalCase (`PrioritiesCache`).
+  Bugfixes:
+    - Fixed 0-things framework storage initialization (`storage._counters` and `storage._sched`) in `control.lua` and `init.lua` to prevent scheduler nil index errors on existing save files.
+---------------------------------------------------------------------------------------------------
 Version: 2.1.1
 Date: 2026-08-09
   Features:
@@ -14,7 +29,6 @@ Date: 2026-08-09
     - Added direct support for player settings defaults when placing new combinators.
   Changes:
     - Refactored C2CC model class (`scripts/models/combinator.lua`) to operate directly on Factorio control_behavior sections.
-    - Removed `0-things` `Thing` entity registration and custom events (`prototypes/thing.lua`); using native Factorio entity lifecycle events.
     - Merged `GroupEditor` element directly into `SectionGroup` component for cleaner component architecture.
     - Moved all state initializations, focus calculations, and output statistics computations into `GuiState` model.
     - Removed legacy vanilla prototype mod settings (`settings.lua`) in favor of per-player in-game storage (`storage.player_settings`).

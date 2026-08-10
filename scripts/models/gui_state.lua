@@ -2,7 +2,7 @@ local constants = require "scripts.constants"
 local PlayerSettings = require "scripts.models.player_settings"
 local C2CC = require "scripts.models.combinator"
 local utils = require "scripts.gui.utils"
-local event = require "__0-things__.lib.core.event"
+local priorities = require "scripts.gui.priorities"
 
 ---@class C2CC.GuiMainState
 ---@field EditPriority string|nil
@@ -40,7 +40,7 @@ end
 function GuiSettingsState:Reset(playerIndex)
   local fresh = PlayerSettings.Copy(playerIndex)
   for k, v in pairs(fresh) do
-    self[k] = v
+    self[k] = util.table.deepcopy(v)
   end
   self.ChangeOldPriority = true
   self.ChangeOldNetwork = true
@@ -68,6 +68,9 @@ function GuiSettingsState:SetCount(val) self.Count = val end
 
 ---@param val string
 function GuiSettingsState:SetDefaultInputMode(val) self.DefaultInputMode = val end
+
+---@param val boolean
+function GuiSettingsState:SetAutoQueryPriorities(val) self.AutoQueryPriorities = val end
 
 ---@param val boolean
 function GuiSettingsState:SetChangeOldPriority(val) self.ChangeOldPriority = val end
@@ -110,6 +113,7 @@ end
 ---@param entity? LuaEntity
 ---@return C2CC.GuiState
 function GuiState.Get(playerIndex, entity)
+  if not playerIndex then return nil end
   storage.gui_state = storage.gui_state or {}
   local st = storage.gui_state[playerIndex]
   if not st then
@@ -177,6 +181,25 @@ function GuiState:GetStatistics()
   }
 end
 
+---@return table
+function GuiState:GetSignalPriorities()
+  if not self.Combinator or not self.Combinator.Entity or not self.Combinator.Entity.valid then
+    log("[c2cc] GetSignalPriorities: Combinator or Entity is invalid")
+    return {}
+  end
+  if self.PlayerSettings and self.PlayerSettings.AutoQueryPriorities == false then
+    log("[c2cc] GetSignalPriorities: AutoQueryPriorities is false")
+    return {}
+  end
+  if self.PrioritiesCache == nil then
+    log("[c2cc] GetSignalPriorities: cache nil, querying priorities...")
+    local info = storage.opened_info and storage.opened_info[self.PlayerIndex]
+    local cached_inv_ids = info and info.target_inv_ids or nil
+    self.PrioritiesCache = priorities.query_signal_priorities(self.Combinator.Entity, cached_inv_ids)
+  end
+  return self.PrioritiesCache or {}
+end
+
 ---@return boolean
 function GuiState:IsStacksEnabled()
   if self.GuiMain.SelectedSection and self.GuiMain.SelectedSlot and self.Combinator then
@@ -219,16 +242,16 @@ function GuiState:GetActiveInputMode(signal)
 end
 
 ---@param textVal string|number|nil
----@param sign integer
+---@param textVal string|number|nil
 ---@return string
-function GuiState:FormatInputText(textVal, sign)
+function GuiState:FormatInputText(textVal)
   if textVal == nil or textVal == "" then return "" end
   local strVal = tostring(textVal)
   if strVal == "-" then return "-" end
   local num = tonumber(strVal)
   if not num then return strVal end
 
-  if sign == -1 then
+  if self.PlayerSettings and self.PlayerSettings.NegativeSignals then
     if num == 0 then return strVal end
     return "-" .. tostring(math.abs(num))
   else
@@ -237,10 +260,9 @@ function GuiState:FormatInputText(textVal, sign)
 end
 
 ---@param signal SignalID|nil
----@param sign integer
 ---@param isStacksEdited boolean
 ---@return integer
-function GuiState:ComputeFinalCount(signal, sign, isStacksEdited)
+function GuiState:ComputeFinalCount(signal, isStacksEdited)
   local gm = self.GuiMain
   local items = gm.EditItems
   local stacks = gm.EditStacks
@@ -271,7 +293,7 @@ function GuiState:ComputeFinalCount(signal, sign, isStacksEdited)
     end
   end
 
-  if sign == -1 then
+  if self.PlayerSettings and self.PlayerSettings.NegativeSignals then
     return utils.to_int32(-math.abs(rawCount))
   else
     return utils.to_int32(rawCount)
@@ -280,19 +302,14 @@ end
 
 ---Calculates the initial count for a signal when adding or setting a slot filter.
 ---@param signal SignalID|nil Signal prototype.
----@param sign integer 1 or -1 sign multiplier.
 ---@return integer # Formatted int32 count.
-function GuiState:CalculateInitialSignalCount(signal, sign)
+function GuiState:CalculateInitialSignalCount(signal)
   if not signal or not signal.name then return -1 end
 
   local ps = self.PlayerSettings
   local gm = self.GuiMain
 
-  -- Determine direction sign: if NegativeSignals is true, default to negative numbers
-  local isNegative = ps.NegativeSignals
-  if sign == -1 then
-    isNegative = not isNegative
-  end
+  local isNegative = (ps and ps.NegativeSignals ~= false)
 
   local isStackable = utils.is_stackable_signal(signal)
   local sSize = utils.get_stack_size(signal)

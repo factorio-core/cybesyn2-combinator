@@ -8,15 +8,9 @@ local Pr = relm.Primitive
 local VF = ultros.VFlow
 local HF = ultros.HFlow
 
-local CAPTION_NETWORK_LIST = { "cybersyn2-constant-combinator-window.network-list-title" }
-local CAPTION_ADD_SECTION = { "gui-logistic.add-section" }
+local C = constants.CAPTIONS
 
----@class C2CC.MainProps : Relm.Props
----@field public entity LuaEntity The Factorio combinator entity.
----@field public root_id Relm.RootId Root ID of the Relm window.
----@field public player_index integer Player index.
-
-local function buildGroupElements(gs, groups, sign, playerIndex, update)
+local function buildGroupElements(gs, groups, playerIndex, update)
   local elements = {}
   for _, grp in ipairs(groups) do
     elements[#elements + 1] = relm.element(constants.GUI.SECTION_GROUP_ELEMENT_NAME, {
@@ -25,7 +19,6 @@ local function buildGroupElements(gs, groups, sign, playerIndex, update)
       selected_section = gs.GuiMain.SelectedSection,
       selected_slot = gs.GuiMain.SelectedSlot,
       combinator = gs.Combinator,
-      sign = sign,
       player_index = playerIndex,
       update = update,
       on_select_slot = function(secIdx, slotIdx)
@@ -87,7 +80,7 @@ relm.define_element({
     local isStacksEnabled = gs:IsStacksEnabled()
 
     return ultros.WindowFrame({
-      caption = "Cybersyn 2 Constant Combinator",
+      caption = C.TITLE,
       on_close = closeHandler,
     }, {
       Pr({
@@ -98,7 +91,7 @@ relm.define_element({
       }, {
         HF({ bottom_margin = 6 }, {
           ultros.Button({
-            caption = "Combinator",
+            caption = C.TAB_COMBINATOR,
             style = (gs.GuiMain.ActiveTab or "combinator") == "combinator" and "confirm_button" or "button",
             height = 28,
             on_click = function()
@@ -108,7 +101,7 @@ relm.define_element({
             end
           }),
           ultros.Button({
-            caption = "Settings",
+            caption = C.TAB_SETTINGS,
             style = (gs.GuiMain.ActiveTab or "combinator") == "settings" and "confirm_button" or "button",
             height = 28,
             on_click = function()
@@ -122,9 +115,9 @@ relm.define_element({
           player_index = playerIndex, update = update
         }) or VF({
           HF({ vertical_align = "center" }, {
-            ultros.BoldLabel(gs.Combinator:IsEnabled() and "● Working" or "○ Disabled"),
+            ultros.BoldLabel(gs.Combinator:IsEnabled() and C.STATUS_WORKING or C.STATUS_DISABLED),
             ultros.Button({
-              caption = gs.Combinator:IsEnabled() and "Output: On" or "Output: Off",
+              caption = gs.Combinator:IsEnabled() and C.OUTPUT_ON or C.OUTPUT_OFF,
               style = gs.Combinator:IsEnabled() and "confirm_button" or "red_button",
               width = 140,
               height = 28,
@@ -135,38 +128,45 @@ relm.define_element({
             })
           }),
 
-          ultros.WellSection({ caption = "Cybersyn Parameters" }, {
-            HF({ vertical_align = "center" }, {
-              Pr({
-                type = "choose-elem-button",
-                elem_type = "signal",
-                elem_value = { type = "virtual", name = constants.SETTINGS.CS_PRIORITY_NAME },
-                enabled = false,
-                style = "relm_slot_button_default"
-              }, {
-                gs.Combinator:GetPriority() ~= 0 and Pr({
-                  type = "label",
-                  style = "relm_label_signal_count",
-                  caption = utils.format_short_number(gs.Combinator:GetPriority()),
-                  ignored_by_interaction = true
-                }) or nil
+          ultros.WellSection({ caption = C.CYBERSYN_PARAMETERS }, {
+            VF({}, {
+              HF({ vertical_align = "center" }, {
+                Pr({
+                  type = "choose-elem-button",
+                  elem_type = "signal",
+                  elem_value = { type = "virtual", name = constants.SETTINGS.CS_PRIORITY_NAME },
+                  enabled = false,
+                  style = "relm_slot_button_default"
+                }, {
+                  gs.Combinator:GetPriority() ~= 0 and Pr({
+                    type = "label",
+                    style = "relm_label_signal_count",
+                    caption = utils.format_short_number(gs.Combinator:GetPriority()),
+                    ignored_by_interaction = true
+                  }) or nil
+                }),
+                ultros.BoldLabel(C.STATION_PRIORITY),
+                ultros.Input({
+                  text = tostring(gs.GuiMain.EditPriority),
+                  numeric = true,
+                  allow_negative = true,
+                  lose_focus_on_confirm = false,
+                  width = 80,
+                  on_change = function(_, _, element)
+                    gs:SetCombinatorPriority(element.text)
+                    update()
+                  end,
+                })
               }),
-              ultros.BoldLabel("Station Priority:"),
-              ultros.Input({
-                text = tostring(gs.GuiMain.EditPriority),
-                numeric = true,
-                allow_negative = true,
-                lose_focus_on_confirm = false,
-                width = 80,
-                on_change = function(_, _, element)
-                  gs:SetCombinatorPriority(element.text)
-                  update()
-                end,
+
+              relm.element(constants.GUI.PRIORITIES_SUMMARY_ELEMENT_NAME, {
+                player_index = playerIndex,
+                update = update,
               })
             })
           }),
 
-          ultros.WellSection({ caption = CAPTION_NETWORK_LIST }, {
+          ultros.WellSection({ caption = C.NETWORK_LIST_TITLE }, {
             VF({
               HF({ vertical_align = "center" }, {
                 Pr({
@@ -203,7 +203,7 @@ relm.define_element({
                   end
                 }),
                 ultros.Button({
-                  caption = gs.GuiMain.EncoderOpen and "Close Encoder" or "Open Encoder",
+                  caption = gs.GuiMain.EncoderOpen and C.CLOSE_ENCODER or C.OPEN_ENCODER,
                   style = gs.GuiMain.EncoderOpen and "red_button" or "button",
                   on_click = function()
                     gs:ToggleEncoder()
@@ -211,7 +211,7 @@ relm.define_element({
                   end
                 }),
                 ultros.Button({
-                  caption = gs.GuiMain.NetworksOpen and "Close Networks" or "Open Networks",
+                  caption = gs.GuiMain.NetworksOpen and C.CLOSE_NETWORKS or C.OPEN_NETWORKS,
                   style = gs.GuiMain.NetworksOpen and "red_button" or "button",
                   on_click = function()
                     gs:ToggleNetworks()
@@ -236,19 +236,19 @@ relm.define_element({
             })
           }),
 
-          ultros.WellSection({ caption = "Output Signals" }, {
+          ultros.WellSection({ caption = C.OUTPUT_SIGNALS }, {
             VF({
               HF({ vertical_align = "center", bottom_margin = 6 }, {
                 Pr({ type = "frame", style = "inside_shallow_frame_with_padding" }, {
-                  ultros.RtMultilineLabel("Items: " .. totalItems .. " (" .. totalItemStacks .. " stacks)")
+                  ultros.RtMultilineLabel({ C.ITEMS_SUMMARY, totalItems, totalItemStacks })
                 }),
                 Pr({ type = "frame", style = "inside_shallow_frame_with_padding" }, {
-                  ultros.RtMultilineLabel("Fluids: " .. totalFluids)
+                  ultros.RtMultilineLabel({ C.FLUIDS_SUMMARY, totalFluids })
                 })
               }),
 
               HF({ vertical_align = "center", bottom_margin = 6 }, {
-                ultros.BoldLabel("Stacks:"),
+                ultros.BoldLabel(C.STACKS),
                 ultros.Input({
                   name = constants.GUI.FIELD_EDIT_STACKS,
                   ref = function(elt)
@@ -257,7 +257,7 @@ relm.define_element({
                       gs:SetTargetFocusField(nil)
                     end
                   end,
-                  text = gs:FormatInputText(gs.GuiMain.EditStacks, (gs.PlayerSettings.NegativeSignals and -1 or 1)),
+                  text = gs:FormatInputText(gs.GuiMain.EditStacks),
                   numeric = true,
                   allow_negative = true,
                   enabled = isStacksEnabled,
@@ -269,7 +269,7 @@ relm.define_element({
                     end
                   end
                 }),
-                ultros.BoldLabel("Count:"),
+                ultros.BoldLabel(C.COUNT),
                 ultros.Input({
                   name = constants.GUI.FIELD_EDIT_COUNT,
                   ref = function(elt)
@@ -278,7 +278,7 @@ relm.define_element({
                       gs:SetTargetFocusField(nil)
                     end
                   end,
-                  text = gs:FormatInputText(gs.GuiMain.EditItems, (gs.PlayerSettings.NegativeSignals and -1 or 1)),
+                  text = gs:FormatInputText(gs.GuiMain.EditItems),
                   numeric = true,
                   allow_negative = true,
                   width = 65,
@@ -304,10 +304,10 @@ relm.define_element({
                   horizontally_stretchable = true,
                   horizontally_squashable = false
                 }, {
-                  VF(buildGroupElements(gs, gs.Combinator:GetGroups(), (gs.PlayerSettings.NegativeSignals and -1 or 1), playerIndex, update)),
+                  VF(buildGroupElements(gs, gs.Combinator:GetGroups(), playerIndex, update)),
 
                   ultros.Button({
-                    caption = CAPTION_ADD_SECTION,
+                    caption = C.ADD_SECTION,
                     horizontally_stretchable = true,
                     top_margin = 4,
                     on_click = function()

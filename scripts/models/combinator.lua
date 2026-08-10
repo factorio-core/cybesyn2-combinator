@@ -94,7 +94,8 @@ end
 ---@return boolean
 function C2CC:IsEnabled()
   local cb = self:GetControlBehavior()
-  return cb and cb.enabled ~= false or true
+  if not cb then return true end
+  return cb.enabled
 end
 
 ---@param enabled boolean

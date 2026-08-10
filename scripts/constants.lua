@@ -1,3 +1,8 @@
+local captions_prefix = "cybersyn2-constant-combinator"
+local function loc(key)
+  return { captions_prefix .. "." .. key }
+end
+
 local constants = {
   SETTINGS = {
     DEFAULT_NEGATIVE_SIGNALS = true,
@@ -16,10 +21,17 @@ local constants = {
     ENCODER_DIALOG_ELEMENT_NAME = "C2CC.EncoderDialog",
     NETWORKS_DIALOG_ELEMENT_NAME = "C2CC.NetworksDialog",
     SETTINGS_TAB_ELEMENT_NAME = "C2CC.SettingsTab",
+    PRIORITIES_SUMMARY_ELEMENT_NAME = "C2CC.PrioritiesSummary",
     FIELD_EDIT_STACKS = "c2cc_edit_stacks",
     FIELD_EDIT_COUNT = "c2cc_edit_count",
     FIELD_RENAME_GROUP_INPUT = "c2cc_rename_group_input",
     GROUPS_SCROLL_PANE = "c2cc_groups_scroll",
+  },
+  EVENTS = {
+    REFRESH_PRIORITIES = "c2cc_refresh_priorities",
+  },
+  MESSAGES = {
+    REFRESH_PRIORITIES = "c2cc_refresh_priorities",
   },
   SECTIONS = {
     CYBERSYN_PRIORITY = 1,
@@ -28,6 +40,55 @@ local constants = {
   INPUT_MODE = {
     COUNT = "count",
     STACKS = "stacks",
+  },
+  CAPTIONS = {
+    TITLE = loc("title"),
+    TAB_COMBINATOR = loc("tab-combinator"),
+    TAB_SETTINGS = loc("tab-settings"),
+    STATUS_WORKING = loc("status-working"),
+    STATUS_DISABLED = loc("status-disabled"),
+    OUTPUT_ON = loc("output-on"),
+    OUTPUT_OFF = loc("output-off"),
+    CYBERSYN_PARAMETERS = loc("cybersyn-parameters"),
+    STATION_PRIORITY = loc("station-priority"),
+    REQUEST_PRIORITY = loc("request-priority"),
+    SUPPLY_PRIORITY = loc("supply-priority"),
+    MIN_PRIORITY = loc("min-priority"),
+    MAX_PRIORITY = loc("max-priority"),
+    NETWORK_LIST_TITLE = loc("network-list-title"),
+    OPEN_ENCODER = loc("open-encoder"),
+    CLOSE_ENCODER = loc("close-encoder"),
+    OPEN_NETWORKS = loc("open-networks"),
+    CLOSE_NETWORKS = loc("close-networks"),
+    OUTPUT_SIGNALS = loc("output-signals"),
+    ITEMS_SUMMARY = captions_prefix .. ".items-summary",
+    FLUIDS_SUMMARY = captions_prefix .. ".fluids-summary",
+    STACKS = loc("stacks"),
+    COUNT = loc("count"),
+    ADD_SECTION = loc("add-section"),
+    RENAME_GROUP = loc("rename-group"),
+    EXISTING_GROUPS = loc("existing-groups"),
+    SAVE = loc("save"),
+    CANCEL = loc("cancel"),
+    PLAYER_SETTINGS = loc("player-settings"),
+    NEGATIVE_SIGNALS = loc("negative-signals"),
+    AUTO_QUERY_PRIORITIES = loc("auto-query-priorities"),
+    DEFAULT_PRIORITY = loc("default-priority"),
+    APPLY_PRIORITY_ALL = loc("apply-priority-all"),
+    DEFAULT_NETWORK_SIGNAL = loc("default-network-signal"),
+    DEFAULT_NETWORK_MASK = loc("default-network-mask"),
+    APPLY_NETWORK_ALL = loc("apply-network-all"),
+    DEFAULT_STACKS = loc("default-stacks"),
+    DEFAULT_COUNT = loc("default-count"),
+    DEFAULT_INPUT_MODE = loc("default-input-mode"),
+    INPUT_MODE_COUNTS = loc("input-mode-counts"),
+    INPUT_MODE_STACKS = loc("input-mode-stacks"),
+    SAVE_SETTINGS = loc("save-settings"),
+    ACTIVE_GLOBAL_NETWORKS = loc("active-global-networks"),
+    NO_ACTIVE_NETWORKS = loc("no-active-networks"),
+    ENCODER_DECIMAL_PREFIX = loc("decimal-prefix"),
+    ENCODER_ALL = loc("all"),
+    ENCODER_NONE = loc("none"),
   },
 }
 

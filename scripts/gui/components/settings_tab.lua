@@ -12,6 +12,8 @@ local HF = ultros.HFlow
 ---@field public player_index integer Player index.
 ---@field public update fun() Update callback to trigger UI re-render.
 
+local C = constants.CAPTIONS
+
 relm.define_element({
   name = constants.GUI.SETTINGS_TAB_ELEMENT_NAME,
   render = function(props)
@@ -25,11 +27,11 @@ relm.define_element({
     return VF({
       bottom_margin = 6
     }, {
-      ultros.WellSection({ caption = "Player Settings" }, {
+      ultros.WellSection({ caption = C.PLAYER_SETTINGS }, {
         VF({}, {
           Pr({
             type = "checkbox",
-            caption = "Automatically make output signals negative",
+            caption = C.NEGATIVE_SIGNALS,
             state = gs.GuiSettings.NegativeSignals,
             listen = true,
             message_handler = ultros.handle_gui_events(
@@ -43,8 +45,25 @@ relm.define_element({
             )
           }),
 
+          Pr({
+            type = "checkbox",
+            caption = C.AUTO_QUERY_PRIORITIES,
+            state = gs.GuiSettings.AutoQueryPriorities,
+            top_margin = 4,
+            listen = true,
+            message_handler = ultros.handle_gui_events(
+              defines.events.on_gui_checked_state_changed,
+              function(_, guiEvent)
+                if guiEvent.element and guiEvent.element.valid then
+                  gs.GuiSettings:SetAutoQueryPriorities(guiEvent.element.state)
+                  update()
+                end
+              end
+            )
+          }),
+
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Station Priority:"),
+            ultros.BoldLabel(C.DEFAULT_PRIORITY),
             ultros.Input({
               text = tostring(gs.GuiSettings.Priority or 10),
               numeric = true,
@@ -59,7 +78,7 @@ relm.define_element({
 
           Pr({
             type = "checkbox",
-            caption = "Apply priority to all combinators (Admin only)",
+            caption = C.APPLY_PRIORITY_ALL,
             state = gs.GuiSettings.ChangeOldPriority,
             top_margin = 4,
             listen = true,
@@ -75,7 +94,7 @@ relm.define_element({
           }),
 
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Network Signal:"),
+            ultros.BoldLabel(C.DEFAULT_NETWORK_SIGNAL),
             Pr({
               type = "choose-elem-button",
               elem_type = "signal",
@@ -96,7 +115,7 @@ relm.define_element({
           }),
 
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Network Mask:"),
+            ultros.BoldLabel(C.DEFAULT_NETWORK_MASK),
             ultros.Input({
               text = tostring(gs.GuiSettings.NetworkFlag or 1),
               numeric = true,
@@ -108,7 +127,7 @@ relm.define_element({
               end
             }),
             ultros.Button({
-              caption = gs.GuiSettings.EncoderOpen and "Close Encoder" or "Open Encoder",
+              caption = gs.GuiSettings.EncoderOpen and C.CLOSE_ENCODER or C.OPEN_ENCODER,
               style = gs.GuiSettings.EncoderOpen and "red_button" or "button",
               on_click = function()
                 gs.GuiSettings:SetEncoderOpen(not gs.GuiSettings.EncoderOpen)
@@ -119,7 +138,7 @@ relm.define_element({
 
           Pr({
             type = "checkbox",
-            caption = "Apply network to all combinators (Admin only)",
+            caption = C.APPLY_NETWORK_ALL,
             state = gs.GuiSettings.ChangeOldNetwork,
             top_margin = 4,
             listen = true,
@@ -143,7 +162,7 @@ relm.define_element({
           }) or nil,
 
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Output Stacks:"),
+            ultros.BoldLabel(C.DEFAULT_STACKS),
             ultros.Input({
               text = tostring(gs.GuiSettings.Stacks or 0),
               numeric = true,
@@ -157,7 +176,7 @@ relm.define_element({
           }),
 
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Output Count:"),
+            ultros.BoldLabel(C.DEFAULT_COUNT),
             ultros.Input({
               text = tostring(gs.GuiSettings.Count or 0),
               numeric = true,
@@ -171,9 +190,9 @@ relm.define_element({
           }),
 
           HF({ vertical_align = "center", top_margin = 8 }, {
-            ultros.BoldLabel("Default Item Input Mode:"),
+            ultros.BoldLabel(C.DEFAULT_INPUT_MODE),
             ultros.Button({
-              caption = "Counts",
+              caption = C.INPUT_MODE_COUNTS,
               style = gs.GuiSettings.DefaultInputMode == constants.INPUT_MODE.COUNT and "confirm_button" or "button",
               height = 28,
               on_click = function()
@@ -182,7 +201,7 @@ relm.define_element({
               end
             }),
             ultros.Button({
-              caption = "Stacks",
+              caption = C.INPUT_MODE_STACKS,
               style = gs.GuiSettings.DefaultInputMode == constants.INPUT_MODE.STACKS and "confirm_button" or "button",
               height = 28,
               on_click = function()
@@ -200,7 +219,7 @@ relm.define_element({
 
           HF({ vertical_align = "center", top_margin = 12 }, {
             ultros.Button({
-              caption = "Save Settings",
+              caption = C.SAVE_SETTINGS,
               style = "confirm_button",
               width = 150,
               height = 30,
@@ -210,7 +229,7 @@ relm.define_element({
               end
             }),
             ultros.Button({
-              caption = "Cancel",
+              caption = C.CANCEL,
               style = "button",
               width = 150,
               height = 30,
