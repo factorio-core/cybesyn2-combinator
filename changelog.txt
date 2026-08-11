@@ -1,70 +1,62 @@
+----------------------------------------------------------------------------------------------------
+Version: 2.1.3
+Date: 2026-08-10
+  Changes:
+    - Combinator settings now use native Factorio tabbed-pane for the Combinator and Settings tabs.
+    - "Open Networks" now scans all active Cybersyn network signals from stops and orders across the entire map.
+    - Group presets dropdown now shows all logistic groups defined in your save.
+    - Signal priorities panel is now more compact — column headers replaced with tooltips on hover, selected signal is highlighted and auto-scrolled.
+  Bugfixes:
+    - Fixed checkbox toggle not actually enabling/disabling section groups.
+    - Fixed combinator GUI staying open but non-functional after save/load — now reopens cleanly.
+    - Fixed group presets dropdown not showing when no presets were available.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.2
 Date: 2026-08-10
   Features:
-    - Added `AutoQueryPriorities` player setting (enabled by default) to automatically query Cybersyn 2 station signal priorities on opening combinator UI.
-    - Added Signal Priorities summary panel under Station Priority displaying non-clickable signal rows for items and fluids (signal icon, Request Min/Max priorities, Supply Min/Max priorities) inside a scroll pane.
-    - Added reactive Relm timer and message handler architecture (`relm_util.use_timer(60, MESSAGES.REFRESH_PRIORITIES)`) for automatic 1-second priority updates.
+    - Added auto-query for signal priorities: the combinator now shows live min/max request and supply priorities for each signal in your station groups. Enabled by default, can be turned off in Settings.
   Changes:
-    - Optimized Cybersyn 2 priority query engine (`scripts/gui/priorities.lua`): directly iterates order dictionaries (`requests`, `requested_fluids`, `provides`) for 10x-50x faster execution and removed legacy Cybersyn 1/draft field checks.
-    - Station inventory resolution (`find_station_for_combinator`) queries Cybersyn 2 API for station inventory IDs (`inventory_id`, `shared_inventory_master`) matching the combinator's association radius.
-    - Replaced manual `root_update` and invalidation flags with `priorities.are_priorities_equal` signal uniqueness checks and selective `relm.paint(me)` repainting.
-    - Encapsulated priority cache directly on `GuiState.PrioritiesCache` for automatic memory cleanup upon closing windows.
-    - Standardized all model state properties to PascalCase (`PrioritiesCache`).
+    - Priority panel updates automatically every 5 seconds.
   Bugfixes:
-    - Fixed 0-things framework storage initialization (`storage._counters` and `storage._sched`) in `control.lua` and `init.lua` to prevent scheduler nil index errors on existing save files.
+    - Fixed rare crash when loading existing save files with combinators.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.1
 Date: 2026-08-09
   Features:
-    - Added In-GUI Settings tab: configure player preferences (negative signals, station priority, default network signal & flag, stacks, count, input mode) live inside the combinator window.
-    - Added Default Network Signal picker allowing customization of the default network signal (e.g. signal-A, signal-B).
-    - Added Admin-only batch update options for world combinators: "Apply priority to all combinators" and "Apply network to all combinators".
-    - Added Save and Cancel buttons in the Settings tab with draft state management and yellow status feedback.
-    - Added smart signal addition defaults: defaults to 1 item/fluid in Counts mode or 1 full stack in Stacks mode when player default settings are unset (0).
-    - Added automatic input field focus on window open and tab switching to the Combinator view.
-    - Re-ordered Factorio logistic sections on control_behavior: Section 1 is Priority, Section 2 is Network Mask, and Sections 3+ are custom groups.
-    - Added automatic migration script (`migrations/2.1.1.lua` / `migrations/2.2.1.lua`) to reorganize sections on existing combinators from older save files.
-    - Added default Section 3 (first custom section group) upon combinator placement.
-    - Added direct support for player settings defaults when placing new combinators.
-  Changes:
-    - Refactored C2CC model class (`scripts/models/combinator.lua`) to operate directly on Factorio control_behavior sections.
-    - Merged `GroupEditor` element directly into `SectionGroup` component for cleaner component architecture.
-    - Moved all state initializations, focus calculations, and output statistics computations into `GuiState` model.
-    - Removed legacy vanilla prototype mod settings (`settings.lua`) in favor of per-player in-game storage (`storage.player_settings`).
-    - Refactored player settings data architecture using `C2CC.PlayerSettings` model class (`scripts/models/player_settings.lua`).
-    - Optimized world batch updates to only run when priority or network values actually changed and match previous settings.
+    - Added Settings tab inside the combinator window: configure your defaults for negative signals, station priority, network signal, network flag, stacks, count, and input mode (Counts vs Stacks).
+    - Added "Apply to all combinators" checkboxes: when saving settings as admin, all your existing combinators with matching values will be batch-updated.
+    - New combinators now automatically use your saved defaults for priority and network mask.
+    - When adding a new signal to a group, the default count is now 1 item/fluid (or 1 full stack in Stacks mode) instead of leaving it empty.
+    - Input fields now auto-focus when you open the combinator window.
+    - Old save files with existing combinators are automatically migrated to the new internal layout.
   Bugfixes:
-    - Fixed copy-pasting settings from vanilla constant combinators into Cybersyn 2 Constant Combinators by automatically shifting pasted sections into Section 3+ and preserving Station Priority and Network Mask.
-    - Fixed dropdown selection handler in group editor by attaching `on_gui_selection_state_changed` message handler.
-    - Fixed output statistics recalculation when toggling section group active checkbox.
-    - Fixed GUI lifecycle cleanup when mining or destroying combinators.
-    - Fixed dropdown preset selection populating rename text input and setting focus.
-    - Fixed localized button caption resetting during group edit by using static caption reference.
-    - Fixed numerical comparisons in world batch update utilities.
-    - Fixed checkbox state rendering and event handling in Relm framework to eliminate progressbar errors and state reset issues.
-    - Fixed runtime `require` errors during save events and new player creation (`on_player_created`).
+    - Fixed copy-pasting settings from a vanilla constant combinator into this combinator: sections are now correctly arranged instead of being misplaced.
+    - Fixed missing dropdown handler in group rename presets.
+    - Fixed output statistics not updating when toggling group checkboxes.
+    - Fixed GUI not closing properly when mining or destroying the combinator.
+    - Fixed preset dropdown selection not populating the rename field.
+    - Fixed button captions resetting during group edit.
+    - Fixed checkbox rendering errors.
+    - Fixed crashes during save/load and when new players join.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 2026-08-05
   Features:
-    - Added Active Global Networks scanner (`Open Networks`) displaying all active network flags used across the factory for 1-click selection.
-    - Added 32-bit Bitmask Encoder embedded directly inside Network Masks section with real-time decimal conversion and dynamic bit button synchronization.
-    - Added dual independent input controls for Stacks and Count with automatic stack size calculations and bold active Count label indicator.
-    - Added full ghost entity support (entity-ghost): inspect and configure combinators placed via blueprints or ghost cursor, with seamless state preservation when built by robots or players.
-    - Added Default Output Stacks per-user runtime setting (`cybersyn2-combinator-setting-stacks`).
-    - Added automatic pre-configuration of default station priority and default network flag (A1) upon entity placement (by hand, bots, or blueprints).
-    - Added compact SI short number overlays on signal icons (`1.2k`, `50k`, `1.2M`) including station priority and network mask signal pickers.
-    - Added auto-scrolling to group editors and newly added section groups.
+    - Added "Open Networks" button: see all network flags used across your factory and select one with a single click.
+    - Added 32-bit Bitmask Encoder: click individual bits (0-31) to compose network masks, with real-time decimal value display.
+    - Added dual Stacks / Count inputs: edit both simultaneously with automatic stack size calculations. The active mode is highlighted in bold.
+    - Full ghost support: you can now open and configure combinators placed as ghosts (blueprints, ghost cursor). All settings are preserved when a robot builds them.
+    - New combinators automatically start with your chosen default priority and network flag (A1 by default).
+    - Signal icons now show compact counts like 1.2k, 50k, 1.2M instead of long numbers.
+    - Auto-scroll to newly added groups and group editors.
   Bugfixes:
-    - Fixed instant input field focus on first slot selection click when switching between fluids and items.
-    - Fixed network mask and stacks inputs to correctly allow negative sign (-) entry during intermediate input.
-    - Fixed output statistics to strictly count items and fluids while completely ignoring virtual signals.
-    - Fixed copy-paste settings between combinators and ghosts.
-  Changes:
-    - Refactored UI architecture using Relm/0-things framework with clean `C2CC` component names and Sumneko type annotations.
-    - Cleaned up obsolete legacy methods, unused prototypes, and redundant code.
+    - Fixed input field focus jumping incorrectly when switching between items and fluids.
+    - Fixed network mask and stacks inputs now correctly allow typing a minus sign (-) mid-input.
+    - Fixed output statistics to only count real items and fluids, ignoring virtual signals.
+    - Fixed copy-paste between combinators and ghosts.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2025-10-07
-  - Released.
+  - Initial release.
+
+(End of file - total 74 lines)

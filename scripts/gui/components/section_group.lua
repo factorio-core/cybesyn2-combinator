@@ -1,5 +1,5 @@
-local relm = require "__0-things__.lib.core.relm.relm"
-local ultros = require "__0-things__.lib.core.relm.ultros"
+local relm = require "__cybersyn2-combinator__.lib.core.relm.relm"
+local ultros = require "__cybersyn2-combinator__.lib.core.relm.ultros"
 local utils = require "scripts.gui.utils"
 local GuiState = require "scripts.models.gui_state"
 local constants = require "scripts.constants"
@@ -63,6 +63,7 @@ relm.define_element({
     local selected_slot = props.selected_slot
     local combinator = props.combinator
     local player_index = props.player_index
+    local gs = GuiState.Get(player_index)
 
     local on_select_slot = props.on_select_slot
     local update = props.update
@@ -77,7 +78,7 @@ relm.define_element({
           target_slots = global_groups[final_name]
         end
         combinator:RenameGroup(grp.GroupIndex, final_name)
-        if target_slots then
+        if target_slots and type(target_slots) == "table" and next(target_slots) then
           combinator:SetGroupSlotsBulk(grp.GroupIndex, target_slots)
         end
       end
@@ -121,6 +122,7 @@ relm.define_element({
               if gui_event.button == defines.mouse_button_type.right then
                 if combinator then
                   combinator:RemoveGroupSlot(grp.GroupIndex, slot_idx)
+                  if on_reset_selection then on_reset_selection() end
                   if update then update() end
                 end
               else
@@ -191,8 +193,8 @@ relm.define_element({
           caption = display_caption,
           tooltip = #grp.GroupName > max_caption_len and grp.GroupName or "",
           value = grp.IsActive,
-          on_click = function()
-            gs:SetGroupActive(grp.GroupIndex, not grp.IsActive)
+          on_change = function(_, state)
+            gs:SetGroupActive(grp.GroupIndex, state)
             if on_reset_selection then on_reset_selection() end
             if update then update() end
           end
@@ -281,7 +283,7 @@ relm.define_element({
             })
           }),
 
-          #names > 0 and VF({
+          #preset_items > 1 and VF({
             top_margin = 6
           }, {
             ultros.BoldLabel(C.EXISTING_GROUPS),

@@ -1,5 +1,5 @@
 local constants = require "scripts.constants"
-local data_util = require "__0-things__.lib.core.data-util"
+local data_util = require "__cybersyn2-combinator__.lib.core.data-util"
 local comb_reg = require "__0-things__.client.combinators-v1"
 
 local name = constants.ENTITY_NAME

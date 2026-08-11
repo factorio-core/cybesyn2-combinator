@@ -4,6 +4,7 @@ local function loc(key)
 end
 
 local constants = {
+
   SETTINGS = {
     DEFAULT_NEGATIVE_SIGNALS = true,
     DEFAULT_PRIORITY = 10,

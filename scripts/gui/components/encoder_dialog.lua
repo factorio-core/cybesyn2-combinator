@@ -1,5 +1,5 @@
-local relm = require "__0-things__.lib.core.relm.relm"
-local ultros = require "__0-things__.lib.core.relm.ultros"
+local relm = require "__cybersyn2-combinator__.lib.core.relm.relm"
+local ultros = require "__cybersyn2-combinator__.lib.core.relm.ultros"
 local utils = require "scripts.gui.utils"
 local constants = require "scripts.constants"
 

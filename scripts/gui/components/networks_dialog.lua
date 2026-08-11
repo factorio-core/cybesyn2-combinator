@@ -1,13 +1,14 @@
-local relm = require "__0-things__.lib.core.relm.relm"
-local ultros = require "__0-things__.lib.core.relm.ultros"
+local relm = require("__cybersyn2-combinator__/lib/core/relm/relm")
+local ultros = require("__cybersyn2-combinator__/lib/core/relm/ultros")
 local utils = require "scripts.gui.utils"
 local constants = require "scripts.constants"
+local networks = require "scripts.gui.networks"
 
 local Pr = relm.Primitive
 local VF = ultros.VFlow
 
 ---@class C2CC.NetworksDialogProps : Relm.Props
----@field public on_select_network? fun(signal: SignalID, count: integer) Callback when a active global network signal is selected.
+---@field public on_select_network? fun(signal: SignalID, count: integer)
 
 local C = constants.CAPTIONS
 
@@ -17,10 +18,13 @@ relm.define_element({
     ---@cast props C2CC.NetworksDialogProps
     local on_select_network = props.on_select_network
 
-    local networks_data = utils.get_all_global_active_networks()
+    ---Networks data is fetched lazily: only queried when this component renders.
+    ---The component is conditionally rendered in main.lua only when
+    ---gs.GuiMain.NetworksOpen is true (triggered by "Open Networks" button press).
+    local networks_data = networks.get_all_global_active_networks()
 
     local net_buttons = {}
-    for key, data_net in pairs(networks_data) do
+    for _, data_net in ipairs(networks_data) do
       net_buttons[#net_buttons + 1] = Pr({
         type = "choose-elem-button",
         elem_type = "signal",
@@ -38,12 +42,12 @@ relm.define_element({
           end
         )
       }, {
-        Pr({
+        data_net.Count ~= 0 and Pr({
           type = "label",
           style = "relm_label_signal_count",
           caption = utils.format_short_number(data_net.Count),
           ignored_by_interaction = true
-        })
+        }) or nil
       })
     end
 
@@ -61,14 +65,15 @@ relm.define_element({
           direction = "vertical",
           vertical_scroll_policy = "auto",
           horizontal_scroll_policy = "never",
-          maximal_height = 200,
+          minimal_height = 44,
+          maximal_height = 180,
           horizontally_stretchable = true
         }, {
           VF({
             horizontal_align = "center",
             horizontally_stretchable = true
           }, {
-            Pr({ type = "table", column_count = 9 }, net_buttons)
+            Pr({ type = "table", column_count = 8 }, net_buttons)
           })
         })
         or ultros.RtMultilineLabel(C.NO_ACTIVE_NETWORKS)

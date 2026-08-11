@@ -1,5 +1,5 @@
-local relm = require "__0-things__.lib.core.relm.relm"
-local ultros = require "__0-things__.lib.core.relm.ultros"
+local relm = require "__cybersyn2-combinator__.lib.core.relm.relm"
+local ultros = require "__cybersyn2-combinator__.lib.core.relm.ultros"
 local utils = require "scripts.gui.utils"
 local GuiState = require "scripts.models.gui_state"
 local constants = require "scripts.constants"
@@ -212,9 +212,10 @@ relm.define_element({
           }),
 
           gs.GuiSettings.StatusMessage ~= "" and Pr({
-            type = "label",
-            caption = "[color=yellow]" .. gs.GuiSettings.StatusMessage .. "[/color]",
-            top_margin = 6
+            type = "frame", style = "inside_shallow_frame_with_padding", direction = "horizontal",
+            maximal_width = 400, horizontally_stretchable = true, top_margin = 6
+          }, {
+            ultros.RtMultilineLabel("[color=yellow]" .. gs.GuiSettings.StatusMessage .. "[/color]")
           }) or nil,
 
           HF({ vertical_align = "center", top_margin = 12 }, {

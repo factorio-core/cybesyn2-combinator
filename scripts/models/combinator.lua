@@ -1,9 +1,10 @@
 local constants = require "scripts.constants"
 local PlayerSettings = require "scripts.models.player_settings"
 
----@param val any
+---Converts any numeric value to a signed 32-bit integer.
+---@param val any Number or string representation to convert.
 ---@return integer
-local function toInt32(val)
+local function ToInt32(val)
   local n = tonumber(val) or 0
   if n > 2147483647 then
     if n <= 4294967295 then
@@ -78,7 +79,7 @@ end
 ---@return LogisticFilter|nil
 local function MakeFilter(signal, count)
   if not signal or not signal.name then return nil end
-  local minVal = toInt32(count)
+  local minVal = ToInt32(count)
   local filter = {
     value = {
       type = signal.type or "item",
@@ -125,7 +126,7 @@ function C2CC:SetPriority(value)
   if not cb then return end
   local sec = getOrCreateSection(cb, constants.SECTIONS.CYBERSYN_PRIORITY)
   if not sec then return end
-  local n = toInt32(value)
+  local n = ToInt32(value)
   if n ~= 0 then
     sec.set_slot(1, MakeFilter({ type = "virtual", name = constants.SETTINGS.CS_PRIORITY_NAME }, n))
   else
@@ -433,5 +434,7 @@ function C2CC:FixPastedVanillaSections(playerIndex)
     end
   end
 end
+
+C2CC.ToInt32 = ToInt32
 
 return C2CC

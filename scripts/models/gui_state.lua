@@ -11,10 +11,10 @@ local priorities = require "scripts.gui.priorities"
 ---@field EditStacks string|number
 ---@field SelectedSection? integer
 ---@field SelectedSlot? integer
----@field ActiveTab string
 ---@field EncoderOpen boolean
 ---@field NetworksOpen boolean
 ---@field TargetFocusField string|nil
+---@field HighlightedSignal string|nil
 
 ---@class C2CC.GuiSettingsState : C2CC.PlayerSettings
 ---@field ChangeOldPriority boolean
@@ -100,7 +100,6 @@ function GuiState.Validate(st, playerIndex)
   local gm = st.GuiMain
   if gm.EditItems == nil then gm.EditItems = "" end
   if gm.EditStacks == nil then gm.EditStacks = "" end
-  if gm.ActiveTab == nil then gm.ActiveTab = "combinator" end
   if gm.EncoderOpen == nil then gm.EncoderOpen = false end
   if gm.NetworksOpen == nil then gm.NetworksOpen = false end
 
@@ -439,11 +438,6 @@ function GuiState:ToggleNetworks()
   self.GuiMain.EncoderOpen = false
 end
 
----@param tab string
-function GuiState:SetActiveTab(tab)
-  self.GuiMain.ActiveTab = tab
-end
-
 function GuiState:AddGroup()
   self.Combinator:AddGroup("")
 end
@@ -475,6 +469,7 @@ function GuiState:ResetSelection()
   self.GuiMain.SelectedSection = nil
   self.GuiMain.SelectedSlot = nil
   self.GuiMain.TargetFocusField = nil
+  self.GuiMain.HighlightedSignal = nil
 end
 
 ---@param text string
@@ -542,6 +537,7 @@ function GuiState:OnSlotClicked(secIdx, slotIdx)
     local slotData = targetGroup.Slots[slotIdx]
     local sig = slotData.Signal
     if sig and sig.name then
+      self.GuiMain.HighlightedSignal = sig.name
       local rawCount = tonumber(slotData.Count) or 0
       self.GuiMain.EditItems = tostring(rawCount)
       if utils.is_stackable_signal(sig) then
@@ -551,6 +547,8 @@ function GuiState:OnSlotClicked(secIdx, slotIdx)
       end
       targetField = self:GetTargetFocusFieldName(sig)
     end
+  else
+    self.GuiMain.HighlightedSignal = nil
   end
 
   if targetField then
@@ -576,11 +574,11 @@ function GuiState:SaveSettings(isAdmin)
   local message = "Settings saved."
   if isAdmin and draft.ChangeOldPriority and priorityChanged then
     local updatedCount = utils.apply_priority_to_all_combinators(oldPriority, draft.Priority)
-    message = message .. " Updated priority on " .. updatedCount .. " combinator(s)."
+    message = message .. "\nUpdated priority on " .. updatedCount .. " combinator(s)."
   end
   if isAdmin and draft.ChangeOldNetwork and networkChanged then
     local updatedNet = utils.apply_network_to_all_combinators(oldNetworkSignal, oldNetworkFlag, draft.DefaultNetworkSignal, draft.NetworkFlag)
-    message = message .. " Updated network mask on " .. updatedNet .. " combinator(s)."
+    message = message .. "\nUpdated network mask on " .. updatedNet .. " combinator(s)."
   end
 
   draft.StatusMessage = message

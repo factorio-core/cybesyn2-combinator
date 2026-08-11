@@ -15,12 +15,11 @@ Provides a clean, reactive Relm user interface for managing station priorities, 
   - **Section 1**: Station Priority (`cybersyn2-priority` virtual signal).
   - **Section 2**: Network Mask (`signal-A` / customized network signal).
   - **Sections 3+**: Custom section groups for Cybersyn item and fluid requests.
-  - Automatic migration script (`2.2.1.lua`) reorganizes existing combinators from older saves.
+  - Automatic migration script reorganizes existing combinators from older saves.
 
 - **Station Priority & Live Signal Priorities Summary**:
   - Adjust station priority directly in the GUI with automatic pre-filled defaults.
-  - **Live Signal Priorities Panel**: Displays an integrated summary pane showing all unique items/fluids at the station with their Min/Max **Request** and **Supply** priorities across matching networks.
-  - **Reactive Updates**: Automatically refreshes every second using Relm native timers (`use_timer`) and repaints only when unique signals change.
+  - **Live Signal Priorities Panel**: Displays an integrated summary pane showing all unique items/fluids at the station with their Min/Max **Request** and **Supply** priorities across matching networks. Tooltips on hover replace column headers for a cleaner look, with auto-scroll and highlight for the selected signal.
 
 - **Network Masks & Bitmask Encoder**:
   - Select network mask signals and edit bitmasks with an interactive 32-bit bitmask encoder.
