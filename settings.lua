@@ -1,1 +1,0 @@
--- All mod settings are managed in-game per-player via the Settings tab in the combinator window.

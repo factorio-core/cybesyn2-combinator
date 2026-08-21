@@ -1,0 +1,30 @@
+{
+  "name": "cybersyn2-combinator",
+  "version": "2.1.4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run format && npm run lint && node build.mjs",
+    "build:all": "npm --prefix ../fcore run build && npm run build",
+    "release": "node release.mjs",
+    "watch": "node build.mjs --watch",
+    "lint": "eslint src/",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "fcore": "file:../fcore"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-to-lua/language-extensions": "^1.19.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "typed-factorio": "^4.2.0",
+    "fs-extra": "^11.2.0",
+    "prettier": "^3.5.0",
+    "typescript": "6.0.2",
+    "typescript-to-lua": "^1.37.0"
+  }
+}
