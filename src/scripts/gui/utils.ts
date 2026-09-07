@@ -20,11 +20,7 @@ export function isCombinatorEntity(entity?: LuaEntity): boolean {
  */
 export function isStackableSignal(signal?: SignalID): boolean {
   if (!signal || !signal.name) return false;
-  if (
-    signal.type === 'fluid' ||
-    signal.type === 'virtual' ||
-    (signal.type as string) === 'quality'
-  ) {
+  if (signal.type === 'fluid' || signal.type === 'virtual' || (signal.type as string) === 'quality') {
     return false;
   }
   return true;
@@ -45,10 +41,7 @@ export function getStackSize(signal?: SignalID): number {
 /**
  * Formats numeric input text, preserving leading minus sign when negative signals are enabled.
  */
-export function formatInputText(
-  textVal: string | number | undefined,
-  isNegativeSignals?: boolean,
-): string {
+export function formatInputText(textVal: string | number | undefined, isNegativeSignals?: boolean): string {
   if (textVal === undefined || textVal === '') return '';
   const strVal = tostring(textVal);
   if (strVal === '-') return '-';
@@ -66,12 +59,7 @@ export function formatInputText(
 /**
  * Calculates initial slot count based on selected signal, player settings, and active input mode.
  */
-export function calculateInitialSignalCount(
-  signal: SignalID | undefined,
-  playerIndex: PlayerIndex,
-  typedItemsStr?: string,
-  typedStacksStr?: string,
-): number {
+export function calculateInitialSignalCount(signal: SignalID | undefined, playerIndex: PlayerIndex, typedItemsStr?: string, typedStacksStr?: string): number {
   if (!signal || !signal.name) return -1;
 
   const ps = PlayerSettings.get(playerIndex);
@@ -82,14 +70,8 @@ export function calculateInitialSignalCount(
 
   const activeMode = !isStackable ? INPUT_MODE.COUNT : ps.defaultInputMode || INPUT_MODE.COUNT;
 
-  const typedItems =
-    typedItemsStr && typedItemsStr !== '' && typedItemsStr !== '-'
-      ? tonumber(typedItemsStr)
-      : undefined;
-  const typedStacks =
-    typedStacksStr && typedStacksStr !== '' && typedStacksStr !== '-'
-      ? tonumber(typedStacksStr)
-      : undefined;
+  const typedItems = typedItemsStr && typedItemsStr !== '' && typedItemsStr !== '-' ? tonumber(typedItemsStr) : undefined;
+  const typedStacks = typedStacksStr && typedStacksStr !== '' && typedStacksStr !== '-' ? tonumber(typedStacksStr) : undefined;
 
   let rawCount: number;
 

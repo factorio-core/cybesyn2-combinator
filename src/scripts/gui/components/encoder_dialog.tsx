@@ -1,12 +1,5 @@
 import { createElement } from 'fcore/react';
-import {
-  Button,
-  VFlow,
-  HFlow,
-  Label,
-  ShallowSection,
-  SlotButtonTable,
-} from 'fcore/react-components';
+import { Button, VFlow, HFlow, ShallowSection, SlotButtonTable } from 'fcore/react-components';
 import { toInt32 } from '../utils';
 import { CAPTIONS } from '../../constants';
 
@@ -28,11 +21,7 @@ function BitButton(props: BitButtonProps) {
   return (
     <Button
       caption={tostring(props.bit)}
-      style={
-        props.isSet
-          ? 'react_selected_standalone_slot_button_grey'
-          : 'react_standalone_slot_button_grey'
-      }
+      style={props.isSet ? 'react_selected_standalone_slot_button_grey' : 'react_standalone_slot_button_grey'}
       styles={{ width: 36, height: 36 }}
       onClick={props.onClick}
     />

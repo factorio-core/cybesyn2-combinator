@@ -56,8 +56,7 @@ export const CAPTIONS = {
   OPEN_NETWORKS: loc('open-networks'),
   CLOSE_NETWORKS: loc('close-networks'),
   OUTPUT_SIGNALS: loc('output-signals'),
-  ITEMS_SUMMARY: (items: number, stacks: number): LocalisedString =>
-    loc('items-summary', items, stacks),
+  ITEMS_SUMMARY: (items: number, stacks: number): LocalisedString => loc('items-summary', items, stacks),
   FLUIDS_SUMMARY: (fluids: number): LocalisedString => loc('fluids-summary', fluids),
   STACKS: loc('stacks'),
   COUNT: loc('count'),

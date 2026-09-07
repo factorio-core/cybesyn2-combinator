@@ -36,16 +36,7 @@ export function parseSignalKey(key: string): SignalID | undefined {
     }
   }
 
-  let sigType:
-    | 'item'
-    | 'fluid'
-    | 'virtual'
-    | 'quality'
-    | 'entity'
-    | 'recipe'
-    | 'space-location'
-    | 'asteroid-chunk'
-    | undefined = undefined;
+  let sigType: 'item' | 'fluid' | 'virtual' | 'quality' | 'entity' | 'recipe' | 'space-location' | 'asteroid-chunk' | undefined = undefined;
 
   if (prototypes.item && prototypes.item[sigName] !== undefined) {
     sigType = 'item';
@@ -80,19 +71,10 @@ export function parseSignalKey(key: string): SignalID | undefined {
 /**
  * Finds the Cybersyn station associated with the combinator by nearby train-stop or rails.
  */
-export function findStationForCombinator(
-  entity: LuaEntity,
-): LuaMultiReturn<[number | undefined, number[]]> {
+export function findStationForCombinator(entity: LuaEntity): LuaMultiReturn<[number | undefined, number[]]> {
   const csInterface = getCybersynInterface();
   if (!entity || !entity.valid || !csInterface) {
-    strace.trace(
-      modPrefix,
-      'find_station_skip',
-      'valid',
-      entity?.valid,
-      'csInterface',
-      csInterface,
-    );
+    strace.trace(modPrefix, 'find_station_skip', 'valid', entity?.valid, 'csInterface', csInterface);
     return $multi(undefined, []);
   }
 
@@ -153,16 +135,7 @@ export function findStationForCombinator(
   }
 
   if (!stopUnit) {
-    strace.trace(
-      modPrefix,
-      'find_station_none',
-      'combinator',
-      entity.unit_number,
-      'pos_x',
-      px,
-      'pos_y',
-      py,
-    );
+    strace.trace(modPrefix, 'find_station_none', 'combinator', entity.unit_number, 'pos_x', px, 'pos_y', py);
     return $multi(undefined, []);
   }
 
@@ -207,16 +180,7 @@ export function findStationForCombinator(
     }
   }
 
-  strace.trace(
-    modPrefix,
-    'find_station_success',
-    'combinator',
-    entity.unit_number,
-    'stop_unit',
-    stopUnit,
-    'inventories',
-    targetInvIds.length,
-  );
+  strace.trace(modPrefix, 'find_station_success', 'combinator', entity.unit_number, 'stop_unit', stopUnit, 'inventories', targetInvIds.length);
 
   return $multi(stopUnit, targetInvIds);
 }
@@ -264,10 +228,7 @@ function getAllWorldInventories(csInterface: string): any[] | undefined {
 /**
  * Queries Cybersyn 2 for global priorities and demand/supply statistics for unique signals.
  */
-export function querySignalPriorities(
-  entity: LuaEntity,
-  cachedInvIds?: number[],
-): SignalPriorityStat[] {
+export function querySignalPriorities(entity: LuaEntity, cachedInvIds?: number[]): SignalPriorityStat[] {
   const csInterface = getCybersynInterface();
   if (!entity || !entity.valid || !csInterface) {
     strace.trace(modPrefix, 'query_skip', 'valid', entity?.valid, 'csInterface', csInterface);
@@ -353,16 +314,7 @@ export function querySignalPriorities(
     }
   }
 
-  strace.trace(
-    modPrefix,
-    'station_signals',
-    'combinator',
-    entity.unit_number,
-    'signals_found',
-    uniqueSignalsList.length,
-    'inventories',
-    targetInvIds.length,
-  );
+  strace.trace(modPrefix, 'station_signals', 'combinator', entity.unit_number, 'signals_found', uniqueSignalsList.length, 'inventories', targetInvIds.length);
 
   if (uniqueSignalsList.length === 0) return [];
 
@@ -373,20 +325,11 @@ export function querySignalPriorities(
 
   const isNetworkMatched = (orderObj: any, inv: any): boolean => {
     if (!currentNetSig || !currentNetSig.signal) return true;
-    const targetNet =
-      orderObj.network ||
-      orderObj.network_mask ||
-      orderObj.network_id ||
-      orderObj.network_flag ||
-      (inv && (inv.network || inv.network_mask || inv.network_id || inv.network_flag));
+    const targetNet = orderObj.network || orderObj.network_mask || orderObj.network_id || orderObj.network_flag || (inv && (inv.network || inv.network_mask || inv.network_id || inv.network_flag));
 
     if (!targetNet) return true;
 
-    if (
-      typeof targetNet === 'number' &&
-      typeof currentNetCount === 'number' &&
-      currentNetCount !== 0
-    ) {
+    if (typeof targetNet === 'number' && typeof currentNetCount === 'number' && currentNetCount !== 0) {
       return (targetNet & currentNetCount) !== 0;
     } else if (typeof targetNet === 'string' && currentNetName) {
       return targetNet === currentNetName || (targetNet as string).indexOf(currentNetName) !== -1;
@@ -458,14 +401,7 @@ export function querySignalPriorities(
     }
   }
 
-  strace.trace(
-    modPrefix,
-    'query_result',
-    'combinator',
-    entity.unit_number,
-    'stats_count',
-    resultList.length,
-  );
+  strace.trace(modPrefix, 'query_result', 'combinator', entity.unit_number, 'stats_count', resultList.length);
 
   return resultList;
 }

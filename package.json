@@ -3,13 +3,14 @@
   "version": "2.1.4",
   "private": true,
   "type": "module",
+  "prettier": "fcore/prettier",
   "scripts": {
-    "build": "npm run format && npm run lint && node build.mjs",
+    "build": "npm run format && npm run lint && fcore-build",
     "build:all": "npm --prefix ../fcore run build && npm run build",
-    "release": "node release.mjs",
-    "watch": "node build.mjs --watch",
-    "lint": "eslint src/",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+    "release": "fcore-release",
+    "watch": "fcore-build --watch",
+    "lint": "eslint src/ --max-warnings 0",
+    "format": "prettier --write --log-level warn \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "fcore": "file:../fcore"

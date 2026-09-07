@@ -32,10 +32,7 @@ for (const [_, surface] of pairs(game.surfaces)) {
                 if ((slot1.value as any).name === CS_PRIORITY) {
                   isPrioritySec = true;
                   priorityFilter = slot1;
-                } else if (
-                  (slot1.value as any).type === 'virtual' &&
-                  (!sec.group || sec.group === '')
-                ) {
+                } else if ((slot1.value as any).type === 'virtual' && (!sec.group || sec.group === '')) {
                   isNetworkSec = true;
                   networkFilter = slot1;
                 }

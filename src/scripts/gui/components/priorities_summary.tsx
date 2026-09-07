@@ -21,20 +21,15 @@ const COLOR_REQ_MAX = { r: 0.15, g: 0.4, b: 0.85 } as Color;
 const COLOR_SUP_MIN = { r: 1.0, g: 0.55, b: 0.55 } as Color;
 const COLOR_SUP_MAX = { r: 0.8, g: 0.2, b: 0.2 } as Color;
 
-function priorityButton(
-  val: number | undefined,
-  colorTint: Color,
-  tooltip: LocalisedString,
-  key: string,
-) {
+function priorityButton(val: number | undefined, colorTint: Color, tooltip: LocalisedString, key: string) {
   return (
     <SlotButton
       key={key}
-      signal={{ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }}
+      value={{ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }}
       locked={true}
       tooltip={tooltip}
-      count={val !== undefined ? val : '-'}
-      count_color={colorTint}
+      bottomRightBadge={val !== undefined ? val : '-'}
+      bottomRightBadgeColor={colorTint}
     />
   );
 }
@@ -47,16 +42,7 @@ export function PrioritiesSummary(props: PrioritiesSummaryProps): any {
   const comb = props.combinator;
   const entity = comb?.getEntity();
 
-  strace.trace(
-    modPrefix,
-    'summary_render',
-    'player',
-    playerIndex,
-    'autoQuery',
-    ps.autoQueryPriorities,
-    'combinator',
-    entity?.unit_number,
-  );
+  strace.trace(modPrefix, 'summary_render', 'player', playerIndex, 'autoQuery', ps.autoQueryPriorities, 'combinator', entity?.unit_number);
 
   if (ps.autoQueryPriorities === false) return undefined;
   if (!entity || !entity.valid) return undefined;
@@ -66,9 +52,7 @@ export function PrioritiesSummary(props: PrioritiesSummaryProps): any {
     return targetInvIds;
   });
 
-  const [prioritiesCache, setPrioritiesCache] = useState<SignalPriorityStat[]>(() =>
-    querySignalPriorities(entity, cachedInvIds),
-  );
+  const [prioritiesCache, setPrioritiesCache] = useState<SignalPriorityStat[]>(() => querySignalPriorities(entity, cachedInvIds));
 
   useInterval(() => {
     if (!entity.valid) return;
@@ -104,7 +88,7 @@ export function PrioritiesSummary(props: PrioritiesSummaryProps): any {
     cells.push(
       <SlotButton
         key={baseKey + '-sig'}
-        signal={sig}
+        value={sig}
         locked={true}
         selected={isMatch || undefined}
         ref={
@@ -119,38 +103,10 @@ export function PrioritiesSummary(props: PrioritiesSummaryProps): any {
       />,
     );
 
-    cells.push(
-      priorityButton(
-        reqMin,
-        COLOR_REQ_MIN,
-        ['', C.REQUEST_PRIORITY, ' ', C.MIN_PRIORITY],
-        baseKey + '-reqMin',
-      ),
-    );
-    cells.push(
-      priorityButton(
-        reqMax,
-        COLOR_REQ_MAX,
-        ['', C.REQUEST_PRIORITY, ' ', C.MAX_PRIORITY],
-        baseKey + '-reqMax',
-      ),
-    );
-    cells.push(
-      priorityButton(
-        supMin,
-        COLOR_SUP_MIN,
-        ['', C.SUPPLY_PRIORITY, ' ', C.MIN_PRIORITY],
-        baseKey + '-supMin',
-      ),
-    );
-    cells.push(
-      priorityButton(
-        supMax,
-        COLOR_SUP_MAX,
-        ['', C.SUPPLY_PRIORITY, ' ', C.MAX_PRIORITY],
-        baseKey + '-supMax',
-      ),
-    );
+    cells.push(priorityButton(reqMin, COLOR_REQ_MIN, ['', C.REQUEST_PRIORITY, ' ', C.MIN_PRIORITY], baseKey + '-reqMin'));
+    cells.push(priorityButton(reqMax, COLOR_REQ_MAX, ['', C.REQUEST_PRIORITY, ' ', C.MAX_PRIORITY], baseKey + '-reqMax'));
+    cells.push(priorityButton(supMin, COLOR_SUP_MIN, ['', C.SUPPLY_PRIORITY, ' ', C.MIN_PRIORITY], baseKey + '-supMin'));
+    cells.push(priorityButton(supMax, COLOR_SUP_MAX, ['', C.SUPPLY_PRIORITY, ' ', C.MAX_PRIORITY], baseKey + '-supMax'));
   }
 
   return (

@@ -3,7 +3,7 @@ import { HFlow, Label, Input } from 'fcore/react-components';
 import { CAPTIONS, INPUT_MODE, type InputMode } from '../../constants';
 import { PlayerSettings } from '../../models/player_settings';
 import { getStackSize, isStackableSignal, formatInputText } from '../utils';
-import type { SignalID, LuaGuiElement, TextFieldGuiElement, PlayerIndex } from 'factorio:runtime';
+import type { SignalID, TextFieldGuiElement, PlayerIndex } from 'factorio:runtime';
 
 const C = CAPTIONS;
 
@@ -17,14 +17,7 @@ export interface SlotCountInputsProps {
 }
 
 export function SlotCountInputs(props: SlotCountInputsProps) {
-  const {
-    playerIndex,
-    signal,
-    count,
-    defaultMode = INPUT_MODE.COUNT,
-    onChange,
-    onDraftChange,
-  } = props;
+  const { playerIndex, signal, count, defaultMode = INPUT_MODE.COUNT, onChange, onDraftChange } = props;
 
   const ps = PlayerSettings.get(playerIndex);
   const isNeg = ps.negativeSignals !== false;
@@ -126,24 +119,9 @@ export function SlotCountInputs(props: SlotCountInputsProps) {
   return (
     <HFlow styles={{ vertical_align: 'center', bottom_margin: 6 }}>
       <Label style="caption_label" caption={C.STACKS} />
-      <Input
-        ref={stacksRef}
-        text={formatInputText(editStacks, isNeg)}
-        numeric={true}
-        allow_negative={true}
-        enabled={isStackable}
-        styles={{ width: 65 }}
-        onChange={handleStacksChange}
-      />
+      <Input ref={stacksRef} text={formatInputText(editStacks, isNeg)} numeric={true} allow_negative={true} enabled={isStackable} styles={{ width: 65 }} onChange={handleStacksChange} />
       <Label style="caption_label" caption={C.COUNT} />
-      <Input
-        ref={countRef}
-        text={formatInputText(editItems, isNeg)}
-        numeric={true}
-        allow_negative={true}
-        styles={{ width: 65 }}
-        onChange={handleItemsChange}
-      />
+      <Input ref={countRef} text={formatInputText(editItems, isNeg)} numeric={true} allow_negative={true} styles={{ width: 65 }} onChange={handleItemsChange} />
     </HFlow>
   );
 }

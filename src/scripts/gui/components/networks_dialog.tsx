@@ -1,13 +1,6 @@
 import { createElement } from 'fcore/react';
 import type { SignalID } from 'factorio:runtime';
-import {
-  SlotButton,
-  SlotButtonTable,
-  VFlow,
-  Label,
-  ShallowSection,
-  ScrollPane,
-} from 'fcore/react-components';
+import { SlotButton, SlotButtonTable, VFlow, Label, ShallowSection, ScrollPane } from 'fcore/react-components';
 import { getAllGlobalActiveNetworks } from '../networks';
 import { CAPTIONS } from '../../constants';
 
@@ -27,8 +20,8 @@ export function NetworksDialog(props: NetworksDialogProps) {
     netButtons.push(
       <SlotButton
         key={`net-${i++}`}
-        signal={dataNet.signal}
-        count={dataNet.count}
+        value={dataNet.signal}
+        bottomRightBadge={dataNet.count}
         locked={true}
         onClick={() => {
           if (onSelectNetwork) onSelectNetwork(dataNet.signal, dataNet.count);
@@ -42,12 +35,7 @@ export function NetworksDialog(props: NetworksDialogProps) {
       <VFlow>
         <Label style="caption_label" caption={C.ACTIVE_GLOBAL_NETWORKS} />
         {netButtons.length > 0 ? (
-          <ScrollPane
-            style="scroll_pane"
-            vertical_scroll_policy="auto"
-            horizontal_scroll_policy="never"
-            styles={{ minimal_height: 44, maximal_height: 180, horizontally_stretchable: true }}
-          >
+          <ScrollPane style="scroll_pane" vertical_scroll_policy="auto" horizontal_scroll_policy="never" styles={{ minimal_height: 44, maximal_height: 180, horizontally_stretchable: true }}>
             <VFlow styles={{ horizontal_align: 'center', horizontally_stretchable: true }}>
               <SlotButtonTable column_count={8}>{netButtons}</SlotButtonTable>
             </VFlow>

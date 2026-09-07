@@ -1,10 +1,4 @@
-import {
-  createElement,
-  useState,
-  useMemo,
-  useEntityLifecycle,
-  registerComponent,
-} from 'fcore/react';
+import { createElement, useState, useMemo, useEntityLifecycle, registerComponent } from 'fcore/react';
 import type { LuaEntity, PlayerIndex } from 'factorio:runtime';
 import { WindowFrame, TabbedPane, Tab } from 'fcore/react-components';
 import { Combinator } from '../../models/combinator';
@@ -33,21 +27,12 @@ export function Main(props: MainProps): any {
     },
   });
 
-  const comb = useMemo(
-    () => (entity && entity.valid ? new Combinator(entity) : undefined),
-    [entity],
-  );
+  const comb = useMemo(() => (entity && entity.valid ? new Combinator(entity) : undefined), [entity]);
 
   if (!entity || !entity.valid || !comb) return undefined;
 
   return (
-    <WindowFrame
-      name={GUI.MAIN_ELEMENT_NAME}
-      caption={C.TITLE}
-      playerIndex={playerIndex}
-      pinnable={true}
-      styles={{ maximal_width: 470, minimal_width: 455, maximal_height: 900, minimal_height: 600 }}
-    >
+    <WindowFrame name={GUI.MAIN_ELEMENT_NAME} caption={C.TITLE} playerIndex={playerIndex} pinnable={true} styles={{ maximal_width: 470, minimal_width: 455, maximal_height: 900, minimal_height: 600 }}>
       <TabbedPane>
         <Tab caption={C.TAB_COMBINATOR}>
           <CombinatorTab playerIndex={playerIndex} combinator={comb} />

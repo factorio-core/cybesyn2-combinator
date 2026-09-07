@@ -1,19 +1,6 @@
 import { createElement, useState, useEffect, useRef, useMemo, useInterval } from 'fcore/react';
 import type { SignalID, ScrollPaneGuiElement, PlayerIndex } from 'factorio:runtime';
-import {
-  WellSection,
-  Switch,
-  Input,
-  Button,
-  SlotButton,
-  SectionGroup,
-  VFlow,
-  HFlow,
-  Label,
-  ShallowSection,
-  ScrollPane,
-  Line,
-} from 'fcore/react-components';
+import { WellSection, Switch, Input, Button, SlotButton, SectionGroup, VFlow, HFlow, Label, ShallowSection, ScrollPane } from 'fcore/react-components';
 import { areObjectsEqual } from 'fcore/utils/table';
 import { getStackSize, calculateInitialSignalCount } from '../utils';
 import { Combinator } from '../../models/combinator';
@@ -34,10 +21,7 @@ export interface CombinatorSnapshot {
   groups: SectionGroupData[];
 }
 
-function getCombinatorSnapshot(
-  comb: Combinator,
-  prevSnapshot?: CombinatorSnapshot,
-): CombinatorSnapshot {
+function getCombinatorSnapshot(comb: Combinator, prevSnapshot?: CombinatorSnapshot): CombinatorSnapshot {
   const net = comb.getNetworkSignal();
   const enabled = comb.isEnabled();
   const priority = comb.getPriority();
@@ -106,7 +90,6 @@ export interface CombinatorTabProps {
 
 export function CombinatorTab(props: CombinatorTabProps) {
   const { playerIndex, combinator: comb } = props;
-  const player = game?.get_player(playerIndex);
   const ps = PlayerSettings.get(playerIndex);
 
   const [data, setData] = useState<CombinatorSnapshot>(() => getCombinatorSnapshot(comb));
@@ -119,9 +102,7 @@ export function CombinatorTab(props: CombinatorTabProps) {
   const [encoderOpen, setEncoderOpen] = useState(false);
   const [networksOpen, setNetworksOpen] = useState(false);
 
-  const [selectedSlot, setSelectedSlot] = useState<
-    { groupIndex: number; slotIndex: number } | undefined
-  >(undefined);
+  const [selectedSlot, setSelectedSlot] = useState<{ groupIndex: number; slotIndex: number } | undefined>(undefined);
   const [shouldScrollBottom, setShouldScrollBottom] = useState(false);
   const scrollPaneRef = useRef<ScrollPaneGuiElement>();
   const draftCountsRef = useRef<{ items?: string; stacks?: string }>({});
@@ -150,11 +131,7 @@ export function CombinatorTab(props: CombinatorTabProps) {
   };
 
   const handleSlotClick = (groupIndex: GroupIndex, slotIndex: SlotIndex) => {
-    if (
-      selectedSlot &&
-      selectedSlot.groupIndex === groupIndex &&
-      selectedSlot.slotIndex === slotIndex
-    ) {
+    if (selectedSlot && selectedSlot.groupIndex === groupIndex && selectedSlot.slotIndex === slotIndex) {
       setSelectedSlot(undefined);
     } else {
       setSelectedSlot({ groupIndex, slotIndex });
@@ -163,21 +140,12 @@ export function CombinatorTab(props: CombinatorTabProps) {
 
   const handleSlotChange = (groupIndex: GroupIndex, slotIndex: SlotIndex, sig?: SignalID) => {
     if (sig && sig.name) {
-      const initialCount = calculateInitialSignalCount(
-        sig,
-        playerIndex,
-        draftCountsRef.current.items,
-        draftCountsRef.current.stacks,
-      );
+      const initialCount = calculateInitialSignalCount(sig, playerIndex, draftCountsRef.current.items, draftCountsRef.current.stacks);
       comb.setGroupSlot(groupIndex, slotIndex, sig, initialCount);
       setSelectedSlot({ groupIndex, slotIndex });
     } else {
       comb.setGroupSlot(groupIndex, slotIndex, undefined, 0);
-      if (
-        selectedSlot &&
-        selectedSlot.groupIndex === groupIndex &&
-        selectedSlot.slotIndex === slotIndex
-      ) {
+      if (selectedSlot && selectedSlot.groupIndex === groupIndex && selectedSlot.slotIndex === slotIndex) {
         setSelectedSlot(undefined);
       }
     }
@@ -193,11 +161,7 @@ export function CombinatorTab(props: CombinatorTabProps) {
         name={grp.rawGroupName}
         active={grp.isActive}
         slots={grp.slots}
-        selectedSlot={
-          selectedSlot && selectedSlot.groupIndex === grp.groupIndex
-            ? selectedSlot.slotIndex
-            : undefined
-        }
+        selectedSlot={selectedSlot && selectedSlot.groupIndex === grp.groupIndex ? selectedSlot.slotIndex : undefined}
         tableStyle="slot_table"
         onActiveChange={(active) => {
           comb.setGroupActive(grp.groupIndex, active);
@@ -242,11 +206,7 @@ export function CombinatorTab(props: CombinatorTabProps) {
       <WellSection caption={C.CYBERSYN_PARAMETERS}>
         <VFlow>
           <HFlow styles={{ vertical_align: 'center' }}>
-            <SlotButton
-              signal={{ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }}
-              count={data.priority}
-              locked={true}
-            />
+            <SlotButton value={{ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }} bottomRightBadge={data.priority} locked={true} />
             <Label style="caption_label" caption={C.STATION_PRIORITY} />
             <Input
               text={tostring(data.priority || 0)}
@@ -263,13 +223,7 @@ export function CombinatorTab(props: CombinatorTabProps) {
           <PrioritiesSummary
             playerIndex={playerIndex}
             combinator={comb}
-            highlightedSignalName={
-              selectedSlot
-                ? data.groups.find((g) => g.groupIndex === selectedSlot.groupIndex)?.slots[
-                    selectedSlot.slotIndex
-                  ]?.signal?.name
-                : undefined
-            }
+            highlightedSignalName={selectedSlot ? data.groups.find((g) => g.groupIndex === selectedSlot.groupIndex)?.slots[selectedSlot.slotIndex]?.signal?.name : undefined}
           />
         </VFlow>
       </WellSection>
@@ -279,8 +233,8 @@ export function CombinatorTab(props: CombinatorTabProps) {
         <VFlow>
           <HFlow styles={{ vertical_align: 'center' }}>
             <SlotButton
-              signal={data.netSignal}
-              count={data.netCount}
+              value={data.netSignal}
+              bottomRightBadge={data.netCount}
               onChange={(sig: any) => {
                 if (sig && sig.name) {
                   const currentCount = tonumber(networkValue) || data.netCount || 0;

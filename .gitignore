@@ -1,4 +1,6 @@
 node_modules/
 dist/
-lualib_bundle.lua
+releases/
+*.zip
 .DS_Store
+*.log

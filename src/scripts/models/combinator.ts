@@ -1,15 +1,6 @@
 import { SECTIONS, SETTINGS, ENTITY_NAME } from '../constants';
 import { PlayerSettings } from './player_settings';
-import { strace } from 'fcore/utils/strace';
-import type {
-  LuaConstantCombinatorControlBehavior,
-  LuaLogisticSection,
-  SignalID,
-  LogisticFilter,
-  LuaEntity,
-  PlayerIndex,
-  UnitNumber,
-} from 'factorio:runtime';
+import type { LuaConstantCombinatorControlBehavior, LuaLogisticSection, SignalID, LogisticFilter, LuaEntity, PlayerIndex, UnitNumber } from 'factorio:runtime';
 
 export type Priority = number;
 export type NetworkMask = number;
@@ -35,10 +26,7 @@ export function toInt32(val: any): number {
   return Math.floor(n);
 }
 
-function getOrCreateSection(
-  cb: LuaConstantCombinatorControlBehavior,
-  sectionIndex: SectionIndex,
-): LuaLogisticSection | undefined {
+function getOrCreateSection(cb: LuaConstantCombinatorControlBehavior, sectionIndex: SectionIndex): LuaLogisticSection | undefined {
   if (!cb || !cb.valid) return undefined;
   while (cb.sections_count < sectionIndex) {
     cb.add_section('');
@@ -46,10 +34,7 @@ function getOrCreateSection(
   return cb.get_section(sectionIndex);
 }
 
-function makeFilter(
-  signal: SignalID | undefined,
-  count: number | string,
-): LogisticFilter | undefined {
+function makeFilter(signal: SignalID | undefined, count: number | string): LogisticFilter | undefined {
   if (!signal || !signal.name) return undefined;
   const minVal = toInt32(count);
   const filter: LogisticFilter = {
@@ -216,10 +201,7 @@ export class Combinator {
     return groups;
   }
 
-  public getGroupSlot(
-    groupIndex: GroupIndex,
-    slotIndex: SlotIndex,
-  ): LuaMultiReturn<[SignalID | undefined, number]> {
+  public getGroupSlot(groupIndex: GroupIndex, slotIndex: SlotIndex): LuaMultiReturn<[SignalID | undefined, number]> {
     const cb = this.getControlBehavior();
     if (!cb) return $multi(undefined, 0);
     const sec = cb.get_section(groupIndex);
@@ -286,12 +268,7 @@ export class Combinator {
     }
   }
 
-  public setGroupSlot(
-    groupIndex: GroupIndex,
-    slotIndex: SlotIndex,
-    signal?: SignalID,
-    count: number | string = 0,
-  ): void {
+  public setGroupSlot(groupIndex: GroupIndex, slotIndex: SlotIndex, signal?: SignalID, count: number | string = 0): void {
     const cb = this.getControlBehavior();
     if (!cb) return;
     const sec = cb.get_section(groupIndex);
@@ -379,11 +356,7 @@ export class Combinator {
     const s2 = getOrCreateSection(cb, SECTIONS.NETWORK_MASK);
 
     if (defaultPriority !== 0 && s1 && !s1.get_slot(1).value) {
-      secSlotSet(
-        s1,
-        1,
-        makeFilter({ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }, defaultPriority)!,
-      );
+      secSlotSet(s1, 1, makeFilter({ type: 'virtual', name: SETTINGS.CS_PRIORITY_NAME }, defaultPriority)!);
     }
 
     if (defaultNetworkFlag !== 0 && s2 && !s2.get_slot(1).value) {
@@ -477,18 +450,11 @@ export class Combinator {
     return count;
   }
 
-  public static applyNetworkToAll(
-    oldNetworkSignal: SignalID | undefined,
-    oldNetworkFlag: number | string,
-    newNetworkSignal: SignalID | undefined,
-    newNetworkFlag: number | string,
-  ): number {
+  public static applyNetworkToAll(oldNetworkSignal: SignalID | undefined, oldNetworkFlag: number | string, newNetworkSignal: SignalID | undefined, newNetworkFlag: number | string): number {
     if (!game) return 0;
     const oldFlag = tonumber(oldNetworkFlag) || 0;
     const newFlag = tonumber(newNetworkFlag) || 0;
-    const sameSignal =
-      oldNetworkSignal?.name === newNetworkSignal?.name &&
-      (oldNetworkSignal?.type || 'item') === (newNetworkSignal?.type || 'item');
+    const sameSignal = oldNetworkSignal?.name === newNetworkSignal?.name && (oldNetworkSignal?.type || 'item') === (newNetworkSignal?.type || 'item');
     if (sameSignal && oldFlag === newFlag) return 0;
 
     let count = 0;
@@ -501,13 +467,8 @@ export class Combinator {
             const currentNet = comb.getNetworkSignal();
             let matchesOld = false;
             if (currentNet && currentNet.signal && oldNetworkSignal && oldNetworkSignal.name) {
-              const sameType =
-                (currentNet.signal.type || 'item') === (oldNetworkSignal.type || 'item');
-              if (
-                sameType &&
-                currentNet.signal.name === oldNetworkSignal.name &&
-                (tonumber(currentNet.count) || 0) === oldFlag
-              ) {
+              const sameType = (currentNet.signal.type || 'item') === (oldNetworkSignal.type || 'item');
+              if (sameType && currentNet.signal.name === oldNetworkSignal.name && (tonumber(currentNet.count) || 0) === oldFlag) {
                 matchesOld = true;
               }
             }

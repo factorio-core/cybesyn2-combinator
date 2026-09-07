@@ -1,10 +1,7 @@
 import { parseSignalKey } from './priorities';
 import * as sigLib from 'fcore/utils/signal';
 
-export function areNetworksEqual(
-  oldList: ActiveNetworkEntry[] | undefined,
-  newList: ActiveNetworkEntry[] | undefined,
-): boolean {
+export function areNetworksEqual(oldList: ActiveNetworkEntry[] | undefined, newList: ActiveNetworkEntry[] | undefined): boolean {
   if (oldList === newList) return true;
   if (!oldList || !newList) return false;
   if (oldList.length !== newList.length) return false;
@@ -12,12 +9,7 @@ export function areNetworksEqual(
     const a = oldList[i];
     const b = newList[i];
     if (!a || !b || !a.signal || !b.signal) return false;
-    if (
-      a.signal.name !== b.signal.name ||
-      a.signal.type !== b.signal.type ||
-      a.signal.quality !== b.signal.quality ||
-      a.count !== b.count
-    ) {
+    if (a.signal.name !== b.signal.name || a.signal.type !== b.signal.type || a.signal.quality !== b.signal.quality || a.count !== b.count) {
       return false;
     }
   }

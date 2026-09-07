@@ -25,15 +25,7 @@ export const GuiManager = {
     const player = game.get_player(playerIndex);
     if (!player || !entity?.valid) return;
 
-    strace.debug(
-      modPrefix,
-      'gui',
-      'open_window',
-      'player',
-      playerIndex,
-      'unit_number',
-      entity.unit_number,
-    );
+    strace.debug(modPrefix, 'gui', 'open_window', 'player', playerIndex, 'unit_number', entity.unit_number);
     createRoot(player.gui.screen, <Main entity={entity} playerIndex={playerIndex} />);
   },
 

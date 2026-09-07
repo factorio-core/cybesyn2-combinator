@@ -40,15 +40,12 @@ export class PlayerSettings implements PlayerSettingsData {
   public update(data?: Partial<PlayerSettingsData>): void {
     if (!data) return;
     if (data.negativeSignals !== undefined) this.negativeSignals = data.negativeSignals;
-    if (data.priority !== undefined)
-      this.priority = tonumber(data.priority) || SETTINGS.DEFAULT_PRIORITY;
+    if (data.priority !== undefined) this.priority = tonumber(data.priority) || SETTINGS.DEFAULT_PRIORITY;
     if (data.defaultNetworkSignal?.name) this.defaultNetworkSignal = data.defaultNetworkSignal;
-    if (data.networkFlag !== undefined)
-      this.networkFlag = tonumber(data.networkFlag) || SETTINGS.DEFAULT_NETWORK_FLAG;
+    if (data.networkFlag !== undefined) this.networkFlag = tonumber(data.networkFlag) || SETTINGS.DEFAULT_NETWORK_FLAG;
     if (data.stacks !== undefined) this.stacks = tonumber(data.stacks) || 0;
     if (data.count !== undefined) this.count = tonumber(data.count) || 0;
-    if (data.defaultInputMode !== undefined)
-      this.defaultInputMode = tostring(data.defaultInputMode);
+    if (data.defaultInputMode !== undefined) this.defaultInputMode = tostring(data.defaultInputMode);
     if (data.autoQueryPriorities !== undefined) this.autoQueryPriorities = data.autoQueryPriorities;
   }
 

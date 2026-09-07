@@ -1,17 +1,5 @@
 import { createElement, useState } from 'fcore/react';
-import {
-  Checkbox,
-  Input,
-  Button,
-  RadioButton,
-  SlotButton,
-  VFlow,
-  HFlow,
-  Label,
-  ShallowSection,
-  WellFold,
-  ScrollPane,
-} from 'fcore/react-components';
+import { Checkbox, Input, Button, RadioButton, SlotButton, VFlow, HFlow, Label, ShallowSection, WellFold, ScrollPane } from 'fcore/react-components';
 import { strace } from 'fcore/utils/strace';
 import { Combinator, type NetworkMask } from '../../models/combinator';
 import { PlayerSettings } from '../../models/player_settings';
@@ -38,26 +26,14 @@ export function SettingsTab(props: SettingsTabProps) {
   const [encoderOpen, setEncoderOpen] = useState(false);
 
   // Admin Batch Replacement States
-  const [oldPriority, setOldPriority] = useState<number>(
-    () => draft.priority ?? SETTINGS.DEFAULT_PRIORITY,
-  );
-  const [newPriority, setNewPriority] = useState<number>(
-    () => draft.priority ?? SETTINGS.DEFAULT_PRIORITY,
-  );
+  const [oldPriority, setOldPriority] = useState<number>(() => draft.priority ?? SETTINGS.DEFAULT_PRIORITY);
+  const [newPriority, setNewPriority] = useState<number>(() => draft.priority ?? SETTINGS.DEFAULT_PRIORITY);
 
-  const [oldNetSignal, setOldNetSignal] = useState<SignalID | undefined>(
-    () => draft.defaultNetworkSignal ?? SETTINGS.DEFAULT_NETWORK_SIGNAL,
-  );
-  const [oldNetFlag, setOldNetFlag] = useState<number>(
-    () => draft.networkFlag ?? SETTINGS.DEFAULT_NETWORK_FLAG,
-  );
+  const [oldNetSignal, setOldNetSignal] = useState<SignalID | undefined>(() => draft.defaultNetworkSignal ?? SETTINGS.DEFAULT_NETWORK_SIGNAL);
+  const [oldNetFlag, setOldNetFlag] = useState<number>(() => draft.networkFlag ?? SETTINGS.DEFAULT_NETWORK_FLAG);
 
-  const [newNetSignal, setNewNetSignal] = useState<SignalID | undefined>(
-    () => draft.defaultNetworkSignal ?? SETTINGS.DEFAULT_NETWORK_SIGNAL,
-  );
-  const [newNetFlag, setNewNetFlag] = useState<number>(
-    () => draft.networkFlag ?? SETTINGS.DEFAULT_NETWORK_FLAG,
-  );
+  const [newNetSignal, setNewNetSignal] = useState<SignalID | undefined>(() => draft.defaultNetworkSignal ?? SETTINGS.DEFAULT_NETWORK_SIGNAL);
+  const [newNetFlag, setNewNetFlag] = useState<number>(() => draft.networkFlag ?? SETTINGS.DEFAULT_NETWORK_FLAG);
 
   const [oldEncoderOpen, setOldEncoderOpen] = useState(false);
   const [newEncoderOpen, setNewEncoderOpen] = useState(false);
@@ -67,15 +43,7 @@ export function SettingsTab(props: SettingsTabProps) {
   };
 
   const handleSave = () => {
-    strace.info(
-      modPrefix,
-      'settings',
-      'save_player_settings',
-      'player',
-      playerIndex,
-      'draft',
-      draft,
-    );
+    strace.info(modPrefix, 'settings', 'save_player_settings', 'player', playerIndex, 'draft', draft);
     PlayerSettings.set(playerIndex, draft);
 
     setNewPriority(draft.priority ?? SETTINGS.DEFAULT_PRIORITY);
@@ -105,9 +73,7 @@ export function SettingsTab(props: SettingsTabProps) {
     if (!isAdmin) return;
     const count = Combinator.applyPriorityToAll(oldPriority, newPriority);
     if (player && player.valid) {
-      player.print(
-        `[${ENTITY_NAME}] Replaced priority (${oldPriority} -> ${newPriority}) on ${count} combinator(s).`,
-      );
+      player.print(`[${ENTITY_NAME}] Replaced priority (${oldPriority} -> ${newPriority}) on ${count} combinator(s).`);
     }
   };
 
@@ -115,9 +81,7 @@ export function SettingsTab(props: SettingsTabProps) {
     if (!isAdmin) return;
     const count = Combinator.applyNetworkToAll(oldNetSignal, oldNetFlag, newNetSignal, newNetFlag);
     if (player && player.valid) {
-      player.print(
-        `[${ENTITY_NAME}] Replaced network mask (${oldNetSignal?.name || 'none'}:${oldNetFlag} -> ${newNetSignal?.name || 'none'}:${newNetFlag}) on ${count} combinator(s).`,
-      );
+      player.print(`[${ENTITY_NAME}] Replaced network mask (${oldNetSignal?.name || 'none'}:${oldNetFlag} -> ${newNetSignal?.name || 'none'}:${newNetFlag}) on ${count} combinator(s).`);
     }
   };
 
@@ -166,7 +130,7 @@ export function SettingsTab(props: SettingsTabProps) {
 
             <Label caption={C.DEFAULT_NETWORK_SIGNAL} styles={{ top_margin: 6 }} />
             <SlotButton
-              signal={draft.defaultNetworkSignal}
+              value={draft.defaultNetworkSignal}
               onChange={(sig: SignalID | undefined) => {
                 if (sig && sig.name) {
                   updateDraft({ defaultNetworkSignal: sig });
@@ -185,11 +149,7 @@ export function SettingsTab(props: SettingsTabProps) {
                   updateDraft({ networkFlag: tonumber(val) || 0 });
                 }}
               />
-              <Button
-                caption={encoderOpen ? C.CLOSE_ENCODER : C.OPEN_ENCODER}
-                style="button"
-                onClick={() => setEncoderOpen(!encoderOpen)}
-              />
+              <Button caption={encoderOpen ? C.CLOSE_ENCODER : C.OPEN_ENCODER} style="button" onClick={() => setEncoderOpen(!encoderOpen)} />
             </HFlow>
 
             {encoderOpen && (
@@ -223,11 +183,7 @@ export function SettingsTab(props: SettingsTabProps) {
               }}
             />
 
-            <Label
-              style="caption_label"
-              caption={C.DEFAULT_INPUT_MODE}
-              styles={{ top_margin: 6 }}
-            />
+            <Label style="caption_label" caption={C.DEFAULT_INPUT_MODE} styles={{ top_margin: 6 }} />
 
             <VFlow>
               <RadioButton
@@ -247,81 +203,33 @@ export function SettingsTab(props: SettingsTabProps) {
             </VFlow>
 
             <HFlow styles={{ top_margin: 12 }}>
-              <Button
-                caption={C.SAVE_SETTINGS}
-                style="confirm_button"
-                styles={{ width: 150, height: 30 }}
-                onClick={handleSave}
-              />
-              <Button
-                caption={C.CANCEL}
-                style="button"
-                styles={{ width: 150, height: 30 }}
-                onClick={handleCancel}
-              />
+              <Button caption={C.SAVE_SETTINGS} style="confirm_button" styles={{ width: 150, height: 30 }} onClick={handleSave} />
+              <Button caption={C.CANCEL} style="button" styles={{ width: 150, height: 30 }} onClick={handleCancel} />
             </HFlow>
           </VFlow>
         </ShallowSection>
 
         {/* 2. Admin Batch Replace */}
         {isAdmin && (
-          <WellFold
-            caption={C.ADMIN_BATCH_REPLACE}
-            defaultCollapsed={true}
-            styles={{ top_margin: 8 }}
-          >
+          <WellFold caption={C.ADMIN_BATCH_REPLACE} defaultCollapsed={true} styles={{ top_margin: 8 }}>
             <VFlow>
-              <Label
-                style="caption_label"
-                caption={C.REPLACE_PRIORITY_TITLE}
-                styles={{ top_margin: 6 }}
-              />
+              <Label style="caption_label" caption={C.REPLACE_PRIORITY_TITLE} styles={{ top_margin: 6 }} />
               <HFlow styles={{ vertical_align: 'center' }}>
                 <Label caption={C.OLD_PRIORITY} />
-                <Input
-                  text={tostring(oldPriority)}
-                  numeric={true}
-                  allow_negative={true}
-                  styles={{ width: 70 }}
-                  onChange={(val) => setOldPriority(tonumber(val) ?? 0)}
-                />
-                <Label
-                  caption="➔"
-                  styles={{ font: 'default-bold', left_margin: 4, right_margin: 4 }}
-                />
+                <Input text={tostring(oldPriority)} numeric={true} allow_negative={true} styles={{ width: 70 }} onChange={(val) => setOldPriority(tonumber(val) ?? 0)} />
+                <Label caption="➔" styles={{ font: 'default-bold', left_margin: 4, right_margin: 4 }} />
                 <Label caption={C.NEW_PRIORITY} />
-                <Input
-                  text={tostring(newPriority)}
-                  numeric={true}
-                  allow_negative={true}
-                  styles={{ width: 70 }}
-                  onChange={(val) => setNewPriority(tonumber(val) ?? 0)}
-                />
+                <Input text={tostring(newPriority)} numeric={true} allow_negative={true} styles={{ width: 70 }} onChange={(val) => setNewPriority(tonumber(val) ?? 0)} />
               </HFlow>
-              <Button
-                caption={C.APPLY_PRIORITY_BTN}
-                style="confirm_button"
-                styles={{ top_margin: 4, width: 180, height: 28 }}
-                onClick={handleApplyPriority}
-              />
+              <Button caption={C.APPLY_PRIORITY_BTN} style="confirm_button" styles={{ top_margin: 4, width: 180, height: 28 }} onClick={handleApplyPriority} />
 
-              <Label
-                style="caption_label"
-                caption={C.REPLACE_NETWORK_TITLE}
-                styles={{ top_margin: 10 }}
-              />
+              <Label style="caption_label" caption={C.REPLACE_NETWORK_TITLE} styles={{ top_margin: 10 }} />
               <VFlow>
                 {/* Old Network */}
                 <HFlow styles={{ vertical_align: 'center' }}>
                   <Label caption={C.OLD_NETWORK} styles={{ width: 70 }} />
-                  <SlotButton signal={oldNetSignal} onChange={(sig) => setOldNetSignal(sig)} />
-                  <Input
-                    text={tostring(oldNetFlag)}
-                    numeric={true}
-                    allow_negative={true}
-                    styles={{ width: 70 }}
-                    onChange={(val) => setOldNetFlag(tonumber(val) ?? 0)}
-                  />
+                  <SlotButton value={oldNetSignal} onChange={(sig) => setOldNetSignal(sig)} />
+                  <Input text={tostring(oldNetFlag)} numeric={true} allow_negative={true} styles={{ width: 70 }} onChange={(val) => setOldNetFlag(tonumber(val) ?? 0)} />
                   <Button
                     caption={oldEncoderOpen ? C.CLOSE_ENCODER : C.OPEN_ENCODER}
                     style="button"
@@ -332,21 +240,13 @@ export function SettingsTab(props: SettingsTabProps) {
                   />
                 </HFlow>
 
-                {oldEncoderOpen && (
-                  <EncoderDialog mask={oldNetFlag} onChangeMask={(mask) => setOldNetFlag(mask)} />
-                )}
+                {oldEncoderOpen && <EncoderDialog mask={oldNetFlag} onChangeMask={(mask) => setOldNetFlag(mask)} />}
 
                 {/* New Network */}
                 <HFlow styles={{ vertical_align: 'center', top_margin: 4 }}>
                   <Label caption={C.NEW_NETWORK} styles={{ width: 70 }} />
-                  <SlotButton signal={newNetSignal} onChange={(sig) => setNewNetSignal(sig)} />
-                  <Input
-                    text={tostring(newNetFlag)}
-                    numeric={true}
-                    allow_negative={true}
-                    styles={{ width: 70 }}
-                    onChange={(val) => setNewNetFlag(tonumber(val) ?? 0)}
-                  />
+                  <SlotButton value={newNetSignal} onChange={(sig) => setNewNetSignal(sig)} />
+                  <Input text={tostring(newNetFlag)} numeric={true} allow_negative={true} styles={{ width: 70 }} onChange={(val) => setNewNetFlag(tonumber(val) ?? 0)} />
                   <Button
                     caption={newEncoderOpen ? C.CLOSE_ENCODER : C.OPEN_ENCODER}
                     style="button"
@@ -357,16 +257,9 @@ export function SettingsTab(props: SettingsTabProps) {
                   />
                 </HFlow>
 
-                {newEncoderOpen && (
-                  <EncoderDialog mask={newNetFlag} onChangeMask={(mask) => setNewNetFlag(mask)} />
-                )}
+                {newEncoderOpen && <EncoderDialog mask={newNetFlag} onChangeMask={(mask) => setNewNetFlag(mask)} />}
 
-                <Button
-                  caption={C.APPLY_NETWORK_BTN}
-                  style="confirm_button"
-                  styles={{ top_margin: 6, width: 180, height: 28 }}
-                  onClick={handleApplyNetwork}
-                />
+                <Button caption={C.APPLY_NETWORK_BTN} style="confirm_button" styles={{ top_margin: 6, width: 180, height: 28 }} onClick={handleApplyNetwork} />
               </VFlow>
             </VFlow>
           </WellFold>

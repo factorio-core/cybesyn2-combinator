@@ -1,36 +1,13 @@
 {
+  "extends": "fcore/tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "node",
-    "outDir": "./dist",
     "rootDir": "./src",
+    "outDir": "./dist",
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
-    "strict": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "types": [
-      "typed-factorio/runtime",
-      "typed-factorio/prototype",
-      "@typescript-to-lua/language-extensions"
-    ],
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "jsx": "react",
-    "jsxFactory": "createElement",
-    "jsxFragmentFactory": "Fragment",
     "paths": {
       "fcore/*": ["./node_modules/fcore/dist/*"]
     }
-  },
-  "tstl": {
-    "luaTarget": "5.2",
-    "luaLibImport": "require",
-    "noImplicitSelf": true,
-    "sourceMapTraceback": true,
-    "luaPlugins": [
-      { "name": "fcore/plugin.cjs" }
-    ],
-    "noResolvePaths": ["util", "__fcore__/**", "__fcore__*"]
   },
   "include": [
     "src/**/*"
